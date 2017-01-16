@@ -23,6 +23,7 @@ class Application(wx.Frame):
         vbox.Add((-1, 10))
         self.SetSizer(vbox)
 
+    @staticmethod
     def create_zip_dialog(self, evt):
         create_zip_dialog = CreateZipDialog(None, title="Neues ZIP-Archiv",
                                             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
