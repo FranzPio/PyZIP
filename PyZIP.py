@@ -17,14 +17,14 @@ class Application(wx.Frame):
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         create_zip_dialog_button = wx.Button(self, id=wx.ID_NEW)
         create_zip_dialog_button.Bind(wx.EVT_BUTTON, self.create_zip_dialog)
-        hbox1.Add(create_zip_dialog_button, 1, wx.EXPAND | wx.ALL, 80)
+        hbox1.Add(create_zip_dialog_button, 1, wx.EXPAND | wx.ALL, 65)
         vbox.Add((-1, 10))
         vbox.Add(hbox1, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 30)
         vbox.Add((-1, 10))
         self.SetSizer(vbox)
 
     @staticmethod
-    def create_zip_dialog(self, evt):
+    def create_zip_dialog(evt):
         create_zip_dialog = CreateZipDialog(None, title="Neues ZIP-Archiv",
                                             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         create_zip_dialog.ShowModal()
@@ -41,8 +41,8 @@ class CreateZipDialog(wx.Dialog):
 
         self.UI()
         self.Centre()
-        self.SetMinSize((380, 320))
-        self.SetSize((380, 320))
+        self.SetMinSize((380, 330))
+        self.SetSize((380, 330))
         self.Bind(wx.EVT_CLOSE, self.CloseDialog)
         self.Show()
 
