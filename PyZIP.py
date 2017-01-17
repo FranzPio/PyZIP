@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import wx
 import zipfile
+import os.path
+import sys
 
 
 class Application(wx.Frame):
@@ -8,24 +10,43 @@ class Application(wx.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.SetIcon(wx.Icon(res_dir + "/PyZIP.ico"))
+
         self.UI()
+        self.toolbar()
         self.Centre()
         self.Show()
 
+    def toolbar(self):
+        toolbar = self.CreateToolBar(style=wx.TB_TEXT)
+        open_archive_tool = toolbar.AddTool(wx.ID_OPEN, "Öffnen", wx.Bitmap(res_dir + "/open_archive.png"),
+                                            "Bestehendes Archiv öffnen")
+        toolbar.AddSeparator()
+        create_archive_tool = toolbar.AddTool(wx.ID_NEW, "Erstellen", wx.Bitmap(res_dir + "/new_archive.png"),
+                                              "Neues Archiv erstellen")
+        self.Bind(wx.EVT_TOOL, self.under_development, open_archive_tool)
+        self.Bind(wx.EVT_TOOL, self.create_zip_dialog, create_archive_tool)
+        toolbar.Realize()
+
     def UI(self):
+        pass
+        # noinspection PyArgumentList
+        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        create_zip_dialog_button = wx.Button(self, id=wx.ID_NEW)
-        create_zip_dialog_button.Bind(wx.EVT_BUTTON, self.create_zip_dialog)
-        hbox1.Add(create_zip_dialog_button, 1, wx.EXPAND | wx.ALL, 65)
-        vbox.Add((-1, 10))
-        vbox.Add(hbox1, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 30)
+        self.archive_contents_listctrl = wx.ListCtrl(self)
+        hbox1.Add(self.archive_contents_listctrl, 1, wx.EXPAND)
+        vbox.Add(hbox1, 1, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 5)
         vbox.Add((-1, 10))
         self.SetSizer(vbox)
 
     @staticmethod
+    def under_development(evt):
+        wx.MessageBox("Diese Funktionalität ist noch in Entwicklung!", "Beta-Version", wx.OK | wx.ICON_INFORMATION)
+
+    @staticmethod
     def create_zip_dialog(evt):
-        create_zip_dialog = CreateZipDialog(None, title="Neues ZIP-Archiv",
+        create_zip_dialog = CreateZipDialog(None, title="Neues Archiv",
                                             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         create_zip_dialog.ShowModal()
 
@@ -146,14 +167,16 @@ class CreateZipDialog(wx.Dialog):
                 with zipfile.ZipFile(self.zip_destination, "w", compression=self.zip_compression_method) as zip_file:
                     for filename, filepath in self.files_to_zip.items():
                         zip_file.write(filepath, filename)
+                wx.MessageBox("Archiv erfolgreich erstellt!", "Info", wx.OK | wx.ICON_INFORMATION)
                 self.CloseDialog(wx.EVT_CLOSE)
-                # TODO: confirmation dialog (wx.MessageBox), such as "Compression completed!"
             else:
                 wx.MessageBox("Kein Speicherort ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
         else:
             wx.MessageBox("Keine Dateien ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
 
 
+res_dir = "res" if hasattr(sys, "frozen") else os.path.expanduser("~") + "/PyZIP"
+
 app = wx.App()
-window = Application(None, title="PyZIP")
+window = Application(None, title="PyZIP", size=(360, 250))
 app.MainLoop()
