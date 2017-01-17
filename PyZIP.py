@@ -74,7 +74,7 @@ class CreateZipDialog(wx.Dialog):
         # noinspection PyArgumentList
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
         vbox = wx.BoxSizer(wx.VERTICAL)
-        hbox1 = wx.StaticBoxSizer(wx.HORIZONTAL, self, " 1.  Dateien für das ZIP-Archiv auswählen")
+        hbox1 = wx.StaticBoxSizer(wx.HORIZONTAL, self, " 1.  Dateien für das Archiv auswählen")
         hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self, "2.  Kompressionsmethode wählen")
         hbox3 = wx.StaticBoxSizer(wx.HORIZONTAL, self, "3.  Speicherort wählen")
         hbox4 = wx.BoxSizer(wx.HORIZONTAL)
@@ -112,7 +112,7 @@ class CreateZipDialog(wx.Dialog):
         hbox3.Add(choose_zip_destination_button, 1, wx.EXPAND | wx.RIGHT | wx.TOP | wx.BOTTOM, 10)
         vbox.Add(hbox3, 2, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
         vbox.Add((-1, 20))
-        create_zip_button = wx.Button(self, label="ZIP-Archiv erstellen")
+        create_zip_button = wx.Button(self, label="Archiv erstellen")
         create_zip_button.Bind(wx.EVT_BUTTON, self.create_zip)
         close_button = wx.Button(self, label="Schließen")
         close_button.Bind(wx.EVT_BUTTON, self.CloseDialog)
