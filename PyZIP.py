@@ -7,7 +7,6 @@ import sys
 
 
 class Application(wx.Frame):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -23,14 +22,17 @@ class Application(wx.Frame):
         open_archive_tool = toolbar.AddTool(wx.ID_OPEN, "Öffnen", wx.Bitmap(res_dir + "/open_archive.png"),
                                             "Bestehendes Archiv öffnen")
         toolbar.AddSeparator()
+        extract_archive_tool = toolbar.AddTool(wx.ID_ANY, "Extrahieren", wx.Bitmap(res_dir + "/extract_archive.png"),
+                                               "Ausgewählte Dateien extrahieren")
+        toolbar.AddSeparator()
         create_archive_tool = toolbar.AddTool(wx.ID_NEW, "Erstellen", wx.Bitmap(res_dir + "/new_archive.png"),
                                               "Neues Archiv erstellen")
         self.Bind(wx.EVT_TOOL, self.open_zip, open_archive_tool)
+        self.Bind(wx.EVT_TOOL, self.extract_from_zip, extract_archive_tool)
         self.Bind(wx.EVT_TOOL, self.create_zip, create_archive_tool)
         toolbar.Realize()
 
     def UI(self):
-        pass
         # noinspection PyArgumentList
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
         vbox = wx.BoxSizer(wx.VERTICAL)
@@ -52,24 +54,37 @@ class Application(wx.Frame):
         file_dialog = wx.FileDialog(self, "Dateien auswählen", "", "", wildcard, wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         if file_dialog.ShowModal() == wx.ID_CANCEL:
             return
-        path_to_zip = file_dialog.GetPath()
+        self.path_to_opened_zip = file_dialog.GetPath()
         filename_of_zip = file_dialog.GetFilename()
         file_extension_of_zip = filename_of_zip.split(".")[-1]
         try:
-            with zipfile.ZipFile(path_to_zip, "r") as zip_file:
+            with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                 for zip_member in zip_file.infolist():
                     self.archive_contents_olv.AddObjects([{
                         "filename": zip_member.filename,
                         "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB",
                         "changed": str(zip_member.date_time[2]) + "." + str(zip_member.date_time[1]) + "." +
-                                   str(zip_member.date_time[0])}])
+                        str(zip_member.date_time[0])}])
         except zipfile.BadZipFile:
             wx.MessageBox("\"" + filename_of_zip + "\" ist keine gültige " + file_extension_of_zip.upper() + "-Datei!",
                           "Fehler", wx.OK | wx.ICON_EXCLAMATION)
 
-    @staticmethod
-    def under_development(evt):
-        wx.MessageBox("Diese Funktionalität ist noch in Entwicklung!", "Beta-Version", wx.OK | wx.ICON_INFORMATION)
+    def extract_from_zip(self, evt):
+        if self.archive_contents_olv.ItemCount == 0:
+            pass  # MessageBox: no archive opened (???)
+        else:
+            file_dialog = wx.DirDialog(self, "Speicherort auswählen", "", wx.DD_DEFAULT_STYLE)
+            if file_dialog.ShowModal() == wx.ID_CANCEL:
+                return
+            path_to_zip = file_dialog.GetPath()
+
+            if self.archive_contents_olv.GetSelectedObjects():
+                with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
+                    for selection in self.archive_contents_olv.GetSelectedObjects():
+                        zip_file.extract(selection["filename"], path_to_zip)
+            else:
+                with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
+                    zip_file.extractall(path_to_zip)
 
     @staticmethod
     def create_zip(evt):
@@ -77,9 +92,12 @@ class Application(wx.Frame):
                                             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         create_zip_dialog.ShowModal()
 
+    @staticmethod
+    def under_development(evt):
+        wx.MessageBox("Diese Funktionalität ist noch in Entwicklung!", "Beta-Version", wx.OK | wx.ICON_INFORMATION)
+
 
 class CreateZipDialog(wx.Dialog):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -202,5 +220,5 @@ class CreateZipDialog(wx.Dialog):
 res_dir = "res" if hasattr(sys, "frozen") else os.path.expanduser("~") + "/PyZIP"
 
 app = wx.App()
-window = Application(None, title="PyZIP", size=(390, 270))
+window = Application(None, title="PyZIP", size=(400, 300))
 app.MainLoop()
