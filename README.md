@@ -5,7 +5,7 @@ Archivmanager in Python mit wxPython
 (weitere sind in Arbeit)
 
 - Kompression von einer / mehreren beliebigen Dateien
-- Anzeigen von Inhalten eines Archiv (+ Dateiinformationen)
+- Anzeigen von Inhalten eines Archivs (+ Dateiinformationen)
 - Extrahieren einzelner / mehrerer / aller Dateien eines Archivs
 
 ***
@@ -20,7 +20,8 @@ Archivmanager in Python mit wxPython
 
 - **Windows**
 
-``PyZIP (Windows).zip`` entpacken und ``PyZIP.exe`` ausführen
+1. ``PyZIP (Windows).zip`` entpacken
+2. ``PyZIP.exe`` ausführen
 
 
 - **Linux**
