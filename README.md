@@ -14,3 +14,15 @@ Archivmanager in Python mit wxPython
 - ZIP (unkomprimiert / komprimiert) (*.zip)
 - BZIP2 (*.bz2)
 - LZMA (*.xz)
+
+***
+### Anleitung
+
+- **Windows**
+
+``PyZIP (Windows).zip`` entpacken und ``PyZIP.exe`` ausführen
+
+
+- **Linux**
+
+coming soon.
