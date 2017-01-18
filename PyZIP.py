@@ -85,6 +85,7 @@ class Application(wx.Frame):
             else:
                 with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                     zip_file.extractall(path_to_zip)
+            wx.MessageBox("Dateien erfolgreich extrahiert!", "Info", wx.OK | wx.ICON_INFORMATION)
 
     @staticmethod
     def create_zip(evt):
