@@ -6,7 +6,8 @@ Archivmanager in Python mit wxPython
 
 - Kompression von einer / mehreren beliebigen Dateien
 - Anzeigen von Inhalten eines Archivs (+ Dateiinformationen)
-- Extrahieren einzelner / mehrerer / aller Dateien eines Archivs
+- Extrahieren einzelner / aller Dateien eines Archivs
+- Überprüfen eines Archivs (CRCs, Header)
 
 ***
 ### Unterstützte Archivformate
@@ -26,4 +27,4 @@ Archivmanager in Python mit wxPython
 
 - **Linux**
 
-coming soon.
+coming (sooner or) later.
