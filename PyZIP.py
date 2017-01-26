@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import wx
 import ObjectListView as olv
 import zipfile
@@ -15,7 +15,16 @@ class Application(wx.Frame):
         self.UI()
         self.toolbar()
         self.Centre()
+        self.Bind(wx.EVT_CLOSE, self.CloseApp)
         self.Show()
+
+    def CloseApp(self, evt):
+        if self.archive_contents_olv.ItemCount > 0:
+            confirmation = wx.MessageDialog(None, "Sind Sie sicher?\n\nPyZIP wirklich schließen?", "Sicher?",
+                                            style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
+            if confirmation.ShowModal() == wx.ID_NO:
+                return
+        self.Destroy()
 
     def toolbar(self):
         toolbar = self.CreateToolBar(style=wx.TB_TEXT)
@@ -25,10 +34,14 @@ class Application(wx.Frame):
         extract_archive_tool = toolbar.AddTool(wx.ID_ANY, "Extrahieren", wx.Bitmap(res_dir + "/extract_archive.png"),
                                                "Ausgewählte Dateien extrahieren")
         toolbar.AddSeparator()
+        verify_archive_tool = toolbar.AddTool(wx.ID_ANY, "Überprüfen", wx.Bitmap(res_dir + "/verify_archive.png"),
+                                              "Archiv überprüfen (CRC, Header)")
+        toolbar.AddSeparator()
         create_archive_tool = toolbar.AddTool(wx.ID_NEW, "Erstellen", wx.Bitmap(res_dir + "/new_archive.png"),
                                               "Neues Archiv erstellen")
         self.Bind(wx.EVT_TOOL, self.open_zip, open_archive_tool)
         self.Bind(wx.EVT_TOOL, self.extract_from_zip, extract_archive_tool)
+        self.Bind(wx.EVT_TOOL, self.verify_zip, verify_archive_tool)
         self.Bind(wx.EVT_TOOL, self.create_zip, create_archive_tool)
         toolbar.Realize()
 
@@ -77,15 +90,46 @@ class Application(wx.Frame):
             if file_dialog.ShowModal() == wx.ID_CANCEL:
                 return
             path_to_zip = file_dialog.GetPath()
+            try:
+                if self.archive_contents_olv.GetSelectedObjects():
+                        with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
+                            for selection in self.archive_contents_olv.GetSelectedObjects():
+                                zip_file.extract(selection["filename"], path_to_zip)
 
-            if self.archive_contents_olv.GetSelectedObjects():
-                with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
-                    for selection in self.archive_contents_olv.GetSelectedObjects():
-                        zip_file.extract(selection["filename"], path_to_zip)
+                else:
+                    with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
+                        zip_file.extractall(path_to_zip)
+            except FileNotFoundError:
+                wx.MessageBox("Das Archiv \"" + self.path_to_opened_zip + "\"\nkonnte nicht gefunden werden.\n"
+                              "Es wurde während der Bearbeitung gelöscht, verschoben oder umbenannt.", "Fehler",
+                              wx.OK | wx.ICON_ERROR)
+            except:
+                wx.MessageBox("Extrahieren fehlgeschlagen!\nDas bedeutet meistens, dass das Archiv fehlerhaft ist.\n\n"
+                              + str(sys.exc_info()[1]), "Unerwarteter Fehler", wx.OK | wx.ICON_ERROR)
             else:
+                wx.MessageBox("Dateien erfolgreich extrahiert!", "Info", wx.OK | wx.ICON_INFORMATION)
+
+    def verify_zip(self, evt):
+        if self.archive_contents_olv.ItemCount == 0:
+            pass  # MessageBox: no archive opened (???)
+        else:
+            try:
                 with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
-                    zip_file.extractall(path_to_zip)
-            wx.MessageBox("Dateien erfolgreich extrahiert!", "Info", wx.OK | wx.ICON_INFORMATION)
+                    verification = zip_file.testzip()
+                    if verification:
+                        wx.MessageBox("Es wurde mindestens ein Fehler im Archiv gefunden!\nErste fehlerhafte Datei:\n\n"
+                                      + "\"" + verification + "\"", "Ergebnis", wx.OK | wx.ICON_EXCLAMATION)
+                    else:
+                        wx.MessageBox("Es wurden keine Fehler im Archiv gefunden!\n"
+                                      "CRCs und Header sind einwandfrei.", "Ergebnis", wx.OK | wx.ICON_INFORMATION)
+            except FileNotFoundError:
+                wx.MessageBox("Das Archiv \"" + self.path_to_opened_zip + "\"\nkonnte nicht gefunden werden.\n"
+                              "Es wurde während der Bearbeitung gelöscht, verschoben oder umbenannt.", "Fehler",
+                              wx.OK | wx.ICON_ERROR)
+
+            except:
+                wx.MessageBox("Überprüfung fehlgeschlagen!\nDas bedeutet meistens, dass das Archiv fehlerhaft ist.\n\n"
+                              + str(sys.exc_info()[1]), "Unerwarteter Fehler", wx.OK | wx.ICON_ERROR)
 
     @staticmethod
     def create_zip(evt):
@@ -207,11 +251,23 @@ class CreateZipDialog(wx.Dialog):
     def create_zip(self, evt):
         if self.files_to_zip:
             if self.zip_destination:
-                with zipfile.ZipFile(self.zip_destination, "w", compression=self.zip_compression_method) as zip_file:
-                    for filename, filepath in self.files_to_zip.items():
-                        zip_file.write(filepath, filename)
-                wx.MessageBox("Archiv erfolgreich erstellt!", "Info", wx.OK | wx.ICON_INFORMATION)
-                self.CloseDialog(wx.EVT_CLOSE)
+                try:
+                    with zipfile.ZipFile(self.zip_destination, "w", compression=self.zip_compression_method) as zip_file:
+                        for filename, filepath in self.files_to_zip.items():
+                            zip_file.write(filepath, filename)
+                except FileNotFoundError:
+                    wx.MessageBox("Mindestens eine Datei wurde während des Erstellens\n"
+                                  "gelöscht, verschoben oder umbenannt.\n\n" + str(sys.exc_info()[1]), "Fehler",
+                                  wx.OK | wx.ICON_ERROR)
+                    os.remove(self.zip_destination)
+                except:
+                    wx.MessageBox("Erstellen des Archivs fehlgeschlagen!\n"
+                                  "Eventuell gibt der Fehlercode weitere Informationen.\n\n"
+                                  + str(sys.exc_info()[1]), "Unerwarteter Fehler", wx.OK | wx.ICON_ERROR)
+                    os.remove(self.zip_destination)
+                else:
+                    wx.MessageBox("Archiv erfolgreich erstellt!", "Info", wx.OK | wx.ICON_INFORMATION)
+                    self.CloseDialog(wx.EVT_CLOSE)
             else:
                 wx.MessageBox("Kein Speicherort ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
         else:
