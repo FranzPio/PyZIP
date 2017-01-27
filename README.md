@@ -33,6 +33,8 @@ coming (sooner or) later.
 - **Source**
 
 1.
+
+
 Python 3.x installieren (https://www.python.org/downloads/)
 
 2.
@@ -42,7 +44,11 @@ pip install ObjectListView
 ```
 
 3.
+
+
 Ordner ``PyZIP`` in Homeverzeichnis kopieren (/home/NAME oder C:\Users\NAME)
 
 4.
+
+
 ``PyZIP.py`` ausführen: ``python PyZIP.py`` bzw. ``python3 PyZIP.py``
