@@ -19,16 +19,16 @@ Archivmanager in Python mit wxPython
 ***
 ### Anleitung
 
-- **Windows**
+#### Windows
 
 - ``PyZIP (Windows).zip`` entpacken
 
 - ``PyZIP.exe`` ausführen
 
 ***
-- **Source**
+#### Source
 
-#### Vorbereitung:
+##### OS-spezifische Abhängigkeiten:
 
 - (nur Windows!)
 
@@ -42,8 +42,7 @@ sudo apt-get install python3.5-dev dpkg-dev build-essential libwebkitgtk-dev lib
 Python-Version in "python3.5-dev" entsprechend anpassen!
 
 
-1.
-
+##### Alle OS:
 ```
 pip install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
 pip install ObjectListView
