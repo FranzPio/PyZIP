@@ -4,6 +4,7 @@ import ObjectListView as olv
 import zipfile
 import os.path
 import sys
+import collections.abc
 
 
 class Application(wx.Frame):
@@ -20,7 +21,7 @@ class Application(wx.Frame):
 
     def CloseApp(self, evt):
         if self.archive_contents_olv.ItemCount > 0:
-            confirmation = wx.MessageDialog(None, "Sind Sie sicher?\n\nPyZIP wirklich schließen?", "Sicher?",
+            confirmation = wx.MessageDialog(None, "Sind Sie sicher?\n\nPyZIP wirklich beenden?", "Sicher?",
                                             style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
             if confirmation.ShowModal() == wx.ID_NO:
                 return
@@ -79,7 +80,8 @@ class Application(wx.Frame):
                         "changed": str(zip_member.date_time[2]) + "." + str(zip_member.date_time[1]) + "." +
                         str(zip_member.date_time[0])}])
         except zipfile.BadZipFile:
-            wx.MessageBox("\"" + filename_of_zip + "\" ist keine gültige " + file_extension_of_zip.upper() + "-Datei!",
+            wx.MessageBox("\"" + filename_of_zip + "\" ist keine gültige " + file_extension_of_zip.upper() + "-Datei "
+                          "oder sie ist beschädigt!",
                           "Fehler", wx.OK | wx.ICON_EXCLAMATION)
 
     def extract_from_zip(self, evt):
@@ -113,9 +115,11 @@ class Application(wx.Frame):
         if self.archive_contents_olv.ItemCount == 0:
             pass  # MessageBox: no archive opened (???)
         else:
+            busy_cursor = wx.BusyCursor()
             try:
                 with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                     verification = zip_file.testzip()
+                    del busy_cursor
                     if verification:
                         wx.MessageBox("Es wurde mindestens ein Fehler im Archiv gefunden!\nErste fehlerhafte Datei:\n\n"
                                       + "\"" + verification + "\"", "Ergebnis", wx.OK | wx.ICON_EXCLAMATION)
@@ -123,11 +127,13 @@ class Application(wx.Frame):
                         wx.MessageBox("Es wurden keine Fehler im Archiv gefunden!\n"
                                       "CRCs und Header sind einwandfrei.", "Ergebnis", wx.OK | wx.ICON_INFORMATION)
             except FileNotFoundError:
+                del busy_cursor
                 wx.MessageBox("Das Archiv \"" + self.path_to_opened_zip + "\"\nkonnte nicht gefunden werden.\n"
                               "Es wurde während der Bearbeitung gelöscht, verschoben oder umbenannt.", "Fehler",
                               wx.OK | wx.ICON_ERROR)
 
             except:
+                del busy_cursor
                 wx.MessageBox("Überprüfung fehlgeschlagen!\nDas bedeutet meistens, dass das Archiv fehlerhaft ist.\n\n"
                               + str(sys.exc_info()[1]), "Unerwarteter Fehler", wx.OK | wx.ICON_ERROR)
 
@@ -146,31 +152,48 @@ class CreateZipDialog(wx.Dialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.files_to_zip = None
+        self.files_to_zip = collections.OrderedDict()
         self.zip_destination = None
         self.zip_compression_method = zipfile.ZIP_STORED
 
         self.UI()
         self.Centre()
-        self.SetMinSize((380, 330))
-        self.SetSize((380, 330))
+        self.SetMinSize((390, 330))
+        self.SetSize((390, 330))
         self.Bind(wx.EVT_CLOSE, self.CloseDialog)
         self.Show()
 
     def CloseDialog(self, evt):
+        if self.files_to_zip or self.zip_destination or self.zip_compression_method != zipfile.ZIP_STORED:
+            confirmation = wx.MessageDialog(None, "Sind Sie sicher?\n\nDialog wirklich schließen?",
+                                            "Sicher?", style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
+            if confirmation.ShowModal() == wx.ID_NO:
+                return
         self.Destroy()
+
+    def CloseAnyDialog(self, evt):
+        evt.GetEventObject().Destroy()
 
     def UI(self):
         # noinspection PyArgumentList
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
+        self.SetFocus()
         vbox = wx.BoxSizer(wx.VERTICAL)
-        hbox1 = wx.StaticBoxSizer(wx.HORIZONTAL, self, " 1.  Dateien für das Archiv auswählen")
+        hbox1 = wx.StaticBoxSizer(wx.HORIZONTAL, self, "1.  Dateien für das Archiv auswählen")
         hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self, "2.  Kompressionsmethode wählen")
         hbox3 = wx.StaticBoxSizer(wx.HORIZONTAL, self, "3.  Speicherort wählen")
         hbox4 = wx.BoxSizer(wx.HORIZONTAL)
-        choose_files_button = wx.Button(self, label="Öffnen...")
+        choose_files_button = wx.Button(self, label="Datei öffnen...")
         choose_files_button.Bind(wx.EVT_BUTTON, self.choose_files_dialog)
-        hbox1.Add(choose_files_button, 1, wx.EXPAND | wx.ALL, 10)
+        choose_folders_button = wx.Button(self, label="Ordner öffnen...")
+        choose_folders_button.Bind(wx.EVT_BUTTON, self.choose_folders_dialog)
+        show_chosen_files_button = wx.Button(self, label="Auswahl anzeigen")
+        show_chosen_files_button.Bind(wx.EVT_BUTTON, self.show_chosen_files_dialog)
+        hbox1.Add(choose_files_button, 1, wx.EXPAND | wx.LEFT | wx.TOP | wx.BOTTOM, 10)
+        hbox1.Add((2, -1))
+        hbox1.Add(choose_folders_button, 1, wx.EXPAND | wx.TOP | wx.BOTTOM, 10)
+        hbox1.Add((15, -1))
+        hbox1.Add(show_chosen_files_button, 2, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
         vbox.Add((-1, 10))
         vbox.Add(hbox1, 2, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
         vbox.Add((-1, 10))
@@ -219,13 +242,45 @@ class CreateZipDialog(wx.Dialog):
         self.zip_destination_textctrl.SetValue("")
 
     def choose_files_dialog(self, evt):
-        self.files_to_zip = {}
         file_dialog = wx.FileDialog(self, "Dateien auswählen", "", "", "",
                                     wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE)
         if file_dialog.ShowModal() == wx.ID_CANCEL:
             return
         for index, filename in enumerate(file_dialog.GetFilenames()):
             self.files_to_zip[filename] = file_dialog.GetPaths()[index]
+
+    def choose_folders_dialog(self, evt):
+        folder_dialog = wx.DirDialog(self, "Dateien auswählen", style=wx.DD_DIR_MUST_EXIST)
+        if folder_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+        for path, folders, files in os.walk(folder_dialog.GetPath()):
+            for filename in files:
+                self.files_to_zip[os.path.join(path, filename).replace(folder_dialog.GetPath(), "")]\
+                    = os.path.join(path, filename)
+
+    def show_chosen_files_dialog(self, evt):
+        if self.files_to_zip:
+            dlg = wx.Dialog(None, title="Auswahl")
+            dlg.Bind(wx.EVT_CLOSE, self.CloseAnyDialog)
+            vbox = wx.BoxSizer(wx.VERTICAL)
+            hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+            hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+            delete_files_text = wx.StaticText(dlg, label="Doppelklicken Sie auf eine Datei, um sie zu entfernen.")
+            hbox1.Add(delete_files_text, 1, wx.EXPAND)
+            vbox.Add((-1, 5))
+            vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 5)
+            self.chosen_files_list_box = wx.ListBox(dlg)
+            for file in self.files_to_zip.keys():
+                self.chosen_files_list_box.Append(file)
+            self.chosen_files_list_box.Bind(wx.EVT_LISTBOX_DCLICK, self.remove_from_zip)
+            hbox2.Add(self.chosen_files_list_box, 1, wx.EXPAND)
+            vbox.Add(hbox2, 3, wx.EXPAND | wx.ALL, 5)
+            dlg.SetSizer(vbox)
+            dlg.ShowModal()
+
+    def remove_from_zip(self, evt):
+        del self.files_to_zip[self.chosen_files_list_box.GetStringSelection()]
+        self.chosen_files_list_box.Delete(self.chosen_files_list_box.GetSelection())
 
     def choose_zip_destination(self, evt):
         if self.zip_compression_method == zipfile.ZIP_STORED or self.zip_compression_method == zipfile.ZIP_DEFLATED:
@@ -251,21 +306,31 @@ class CreateZipDialog(wx.Dialog):
     def create_zip(self, evt):
         if self.files_to_zip:
             if self.zip_destination:
+                if os.path.isfile(self.zip_destination):
+                    os.remove(self.zip_destination)
+                busy_cursor = wx.BusyCursor()
+                busy_info = wx.BusyInfo("Bitte warten,\nArchiv wird erstellt...")
                 try:
                     with zipfile.ZipFile(self.zip_destination, "w", compression=self.zip_compression_method) as zip_file:
                         for filename, filepath in self.files_to_zip.items():
                             zip_file.write(filepath, filename)
                 except FileNotFoundError:
+                    del busy_info
+                    del busy_cursor
                     wx.MessageBox("Mindestens eine Datei wurde während des Erstellens\n"
                                   "gelöscht, verschoben oder umbenannt.\n\n" + str(sys.exc_info()[1]), "Fehler",
                                   wx.OK | wx.ICON_ERROR)
                     os.remove(self.zip_destination)
                 except:
+                    del busy_info
+                    del busy_cursor
                     wx.MessageBox("Erstellen des Archivs fehlgeschlagen!\n"
                                   "Eventuell gibt der Fehlercode weitere Informationen.\n\n"
                                   + str(sys.exc_info()[1]), "Unerwarteter Fehler", wx.OK | wx.ICON_ERROR)
                     os.remove(self.zip_destination)
                 else:
+                    del busy_info
+                    del busy_cursor
                     wx.MessageBox("Archiv erfolgreich erstellt!", "Info", wx.OK | wx.ICON_INFORMATION)
                     self.CloseDialog(wx.EVT_CLOSE)
             else:
@@ -274,7 +339,7 @@ class CreateZipDialog(wx.Dialog):
             wx.MessageBox("Keine Dateien ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
 
 
-res_dir = "res" if hasattr(sys, "frozen") else os.path.expanduser("~") + "/PyZIP"
+res_dir = "res" if hasattr(sys, "frozen") else os.path.expanduser("~") + "/PyZIP/res"
 
 app = wx.App()
 window = Application(None, title="PyZIP", size=(400, 300))
