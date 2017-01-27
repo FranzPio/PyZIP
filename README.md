@@ -37,28 +37,37 @@ coming (sooner or) later.
 ***
 - **Source**
 
-1. (nur unter Windows)
+0.
+
+(nur unter Windows!)
 
 Python 3.x installieren (https://www.python.org/downloads/)
 
-1. (nur unter Linux)
+0.
 
+(nur unter Linux!, hier Debian/Ubuntu)
+(Python-Version in "python3.5-dev" entsprechend anpassen)
 ```bash
 sudo apt-get install python3.5-dev dpkg-dev build-essential libwebkitgtk-dev libjpeg-dev libtiff-dev libgtk2.0-dev libsdl1.2-dev libgstreamer-plugins-base0.10-dev libnotify-dev freeglut3 freeglut3-dev python3-pip python3-setuptools
 ```
 
 
-2.
+1.
 ```
 pip install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
 pip install ObjectListView
 ```
+bzw.
+```
+pip3 install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
+pip3 install ObjectListView
+```
 
-3.
+2.
 
 Ordner ``PyZIP`` in Homeverzeichnis kopieren (/home/NAME oder C:\Users\NAME)
 
-4.
+3.
 
 ``PyZIP.py`` ausführen
 
