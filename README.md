@@ -51,4 +51,5 @@ Ordner ``PyZIP`` in Homeverzeichnis kopieren (/home/NAME oder C:\Users\NAME)
 4.
 
 
-``PyZIP.py`` ausführen: ``python PyZIP.py`` bzw. ``python3 PyZIP.py``
+``PyZIP.py`` ausführen
+(z.B. ``python PyZIP.py`` bzw. ``python3 PyZIP.py``)
