@@ -28,3 +28,14 @@ Archivmanager in Python mit wxPython
 - **Linux**
 
 coming (sooner or) later.
+
+
+- **Source**
+
+1. Python 3.x installieren (https://www.python.org/downloads/)
+
+2. ```
+pip install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
+pip install ObjectListView
+
+3.
