@@ -37,14 +37,17 @@ coming (sooner or) later.
 ***
 - **Source**
 
-0,5. (nur Windows!) Python 3.x installieren (https://www.python.org/downloads/)
+#### Vorbereitung:
 
-0,5. (nur Linux!, hier Debian/Ubuntu)
+(nur Windows!) Python 3.x installieren (https://www.python.org/downloads/)
+
+(nur Linux!, hier Debian/Ubuntu)
 
 Python-Version in "python3.5-dev" entsprechend anpassen!
 ```bash
 sudo apt-get install python3.5-dev dpkg-dev build-essential libwebkitgtk-dev libjpeg-dev libtiff-dev libgtk2.0-dev libsdl1.2-dev libgstreamer-plugins-base0.10-dev libnotify-dev freeglut3 freeglut3-dev python3-pip python3-setuptools
 ```
+
 
 
 1.
