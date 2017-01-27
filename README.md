@@ -6,7 +6,8 @@ Archivmanager in Python mit wxPython
 
 - Kompression von einer / mehreren beliebigen Dateien
 - Anzeigen von Inhalten eines Archivs (+ Dateiinformationen)
-- Extrahieren einzelner / mehrerer / aller Dateien eines Archivs
+- Extrahieren einzelner / aller Dateien eines Archivs
+- Überprüfen eines Archivs (CRCs, Header)
 
 ***
 ### Unterstützte Archivformate
@@ -18,12 +19,42 @@ Archivmanager in Python mit wxPython
 ***
 ### Anleitung
 
-- **Windows**
+#### Windows
 
-1. ``PyZIP (Windows).zip`` entpacken
-2. ``PyZIP.exe`` ausführen
+- ``PyZIP (Windows).zip`` entpacken
+
+- ``PyZIP.exe`` ausführen
+
+***
+#### Source
+
+##### OS-spezifische Abhängigkeiten:
+
+- (nur Windows!)
+
+Python 3.x installieren (https://www.python.org/downloads/)
+
+- (nur Linux!, hier Debian/Ubuntu)
+
+```bash
+sudo apt-get install python3.5-dev dpkg-dev build-essential libwebkitgtk-dev libjpeg-dev libtiff-dev libgtk2.0-dev libsdl1.2-dev libgstreamer-plugins-base0.10-dev libnotify-dev freeglut3 freeglut3-dev python3-pip python3-setuptools
+```
+Python-Version in "python3.5-dev" entsprechend anpassen!
 
 
-- **Linux**
+##### Alle OS:
+```
+pip install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
+pip install ObjectListView
+```
+evtl. ``pip`` durch ``pip3`` ersetzen
 
-coming soon.
+2.
+
+Ordner ``PyZIP`` in Homeverzeichnis kopieren (/home/NAME oder C:\Users\NAME)
+
+3.
+
+``PyZIP.py`` ausführen
+
+(z.B. ``python PyZIP.py`` bzw. ``python3 PyZIP.py``)
