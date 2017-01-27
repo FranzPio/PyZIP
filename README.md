@@ -21,8 +21,13 @@ Archivmanager in Python mit wxPython
 
 - **Windows**
 
-1. ``PyZIP (Windows).zip`` entpacken
-2. ``PyZIP.exe`` ausführen
+1.
+
+``PyZIP (Windows).zip`` entpacken
+
+2.
+
+``PyZIP.exe`` ausführen
 
 ***
 - **Linux**
@@ -32,9 +37,16 @@ coming (sooner or) later.
 ***
 - **Source**
 
-1.
+1. (nur unter Windows)
 
 Python 3.x installieren (https://www.python.org/downloads/)
+
+1. (nur unter Linux)
+
+```bash
+sudo apt-get install python3.5-dev dpkg-dev build-essential libwebkitgtk-dev libjpeg-dev libtiff-dev libgtk2.0-dev libsdl1.2-dev libgstreamer-plugins-base0.10-dev libnotify-dev freeglut3 freeglut3-dev python3-pip python3-setuptools
+```
+
 
 2.
 ```
