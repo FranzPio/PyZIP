@@ -30,11 +30,6 @@ Archivmanager in Python mit wxPython
 ``PyZIP.exe`` ausführen
 
 ***
-- **Linux**
-
-coming (sooner or) later.
-
-***
 - **Source**
 
 #### Vorbereitung:
