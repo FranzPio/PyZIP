@@ -21,9 +21,7 @@ Archivmanager in Python mit wxPython
 
 #### Windows
 
-- ``PyZIP (Windows).zip`` entpacken
-
-- ``PyZIP.exe`` ausführen
+- ``install.exe`` ausführen
 
 ***
 #### Source
