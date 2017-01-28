@@ -260,27 +260,35 @@ class CreateZipDialog(wx.Dialog):
 
     def show_chosen_files_dialog(self, evt):
         if self.files_to_zip:
-            dlg = wx.Dialog(None, title="Auswahl")
+            dlg = wx.Dialog(None, title="Auswahl", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
             dlg.Bind(wx.EVT_CLOSE, self.CloseAnyDialog)
             vbox = wx.BoxSizer(wx.VERTICAL)
             hbox1 = wx.BoxSizer(wx.HORIZONTAL)
             hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-            delete_files_text = wx.StaticText(dlg, label="Doppelklicken Sie auf eine Datei, um sie zu entfernen.")
-            hbox1.Add(delete_files_text, 1, wx.EXPAND)
-            vbox.Add((-1, 5))
-            vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 5)
+            chosen_files_text = wx.StaticText(dlg, label="Ausgewählte Dateien und Ordner")
+            hbox1.Add(chosen_files_text, 2, wx.EXPAND | wx.LEFT, 5)
+            delete_files_button = wx.Button(dlg, label="Entfernen")
+            delete_files_button.Bind(wx.EVT_BUTTON, self.remove_from_zip)
+            hbox1.Add(delete_files_button, 1, wx.EXPAND | wx.BOTTOM | wx.RIGHT, 5)
+            # vbox.Add((-1, 5))
+            vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 10)
             self.chosen_files_list_box = wx.ListBox(dlg)
             for file in self.files_to_zip.keys():
                 self.chosen_files_list_box.Append(file)
-            self.chosen_files_list_box.Bind(wx.EVT_LISTBOX_DCLICK, self.remove_from_zip)
             hbox2.Add(self.chosen_files_list_box, 1, wx.EXPAND)
-            vbox.Add(hbox2, 3, wx.EXPAND | wx.ALL, 5)
+            vbox.Add(hbox2, 3, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
+            self.chosen_files_list_box.SetFocus()
             dlg.SetSizer(vbox)
+            dlg.SetMinSize((380, 270))
+            dlg.SetSize((380, 270))
             dlg.ShowModal()
 
     def remove_from_zip(self, evt):
-        del self.files_to_zip[self.chosen_files_list_box.GetStringSelection()]
-        self.chosen_files_list_box.Delete(self.chosen_files_list_box.GetSelection())
+        try:
+            del self.files_to_zip[self.chosen_files_list_box.GetStringSelection()]
+            self.chosen_files_list_box.Delete(self.chosen_files_list_box.GetSelection())
+        except KeyError:
+            pass
 
     def choose_zip_destination(self, evt):
         if self.zip_compression_method == zipfile.ZIP_STORED or self.zip_compression_method == zipfile.ZIP_DEFLATED:
