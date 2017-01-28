@@ -64,7 +64,7 @@ class Application(wx.Frame):
         self.SetSizer(vbox)
 
     def open_zip(self, evt):
-        wildcard = "Archivdateien| *.zip;*.bz2;*.xz;*.lzma"
+        wildcard = "Archivdateien|*.zip;*.bz2;*.xz;*.lzma"
         file_dialog = wx.FileDialog(self, "Dateien auswählen", "", "", wildcard, wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         if file_dialog.ShowModal() == wx.ID_CANCEL:
             return
@@ -155,6 +155,8 @@ class CreateZipDialog(wx.Dialog):
         self.files_to_zip = collections.OrderedDict()
         self.zip_destination = None
         self.zip_compression_method = zipfile.ZIP_STORED
+
+        self.SetIcon(wx.Icon(res_dir + "/PyZIP.ico"))
 
         self.UI()
         self.Centre()
@@ -340,7 +342,6 @@ class CreateZipDialog(wx.Dialog):
                     del busy_info
                     del busy_cursor
                     wx.MessageBox("Archiv erfolgreich erstellt!", "Info", wx.OK | wx.ICON_INFORMATION)
-                    self.CloseDialog(wx.EVT_CLOSE)
             else:
                 wx.MessageBox("Kein Speicherort ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
         else:
