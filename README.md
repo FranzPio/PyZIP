@@ -24,6 +24,7 @@ Archivmanager in Python mit wxPython
 - ``install.exe`` ausführen (SmartScreen-Warnung ignorieren)
 
 - bei Problemen mit Zertifikat, SmartScreen-Filter etc.
+
   ``certutil -user -addstore Root "SPEICHERORT/PyZIP/res/CA.cer"``
 
 ***
