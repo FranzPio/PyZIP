@@ -1,0 +1,7 @@
+language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+install: "pip install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix"
+script: python3 $TARGET
