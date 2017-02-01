@@ -17,6 +17,16 @@ Archivmanager in Python mit wxPython
 - LZMA (*.xz)
 
 ***
+### To do
+
+- Internationalisierung (u.a. Englisch)
+- direktes Öffnen von Archivmitgliedern mit entsprechenden Programmen aus PyZIP heraus
+- (Windows) "Öffnen mit..." -> "PyZIP"
+- Entwickler- / Programminformationen aus PyZIP entnehmbar
+
+##### u.v.m.
+
+***
 ### Anleitung
 
 #### Windows
