@@ -2,7 +2,6 @@
 Archivmanager in Python mit wxPython
 ***
 ### Features
-(weitere sind in Arbeit)
 
 - Kompression von einer / mehreren beliebigen Dateien / Ordnern
 - Anzeigen von Inhalten eines Archivs (+ Dateiinformationen)
@@ -15,6 +14,16 @@ Archivmanager in Python mit wxPython
 - ZIP (unkomprimiert / komprimiert) (*.zip)
 - BZIP2 (*.bz2)
 - LZMA (*.xz)
+
+***
+### To do
+
+- Internationalisierung (u.a. Englisch)
+- direktes Öffnen von Archivmitgliedern mit entsprechenden Programmen aus PyZIP heraus
+- (Windows) "Öffnen mit..." -> "PyZIP"
+- Entwickler- / Programminformationen aus PyZIP entnehmbar
+
+##### u.v.m.
 
 ***
 ### Anleitung
