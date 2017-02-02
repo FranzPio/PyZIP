@@ -7,13 +7,14 @@ import sys
 import collections.abc
 import subprocess
 import tempfile
+import images
 
 
 class Application(wx.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.SetIcon(wx.Icon(res_dir + "/PyZIP.ico"))
+        self.SetIcon(images.PyZIP.GetIcon())
         self.SetMinSize((400, 300))
 
         self.UI()
@@ -42,16 +43,16 @@ class Application(wx.Frame):
 
     def toolbar(self):
         toolbar = self.CreateToolBar(style=wx.TB_TEXT)
-        open_archive_tool = toolbar.AddTool(wx.ID_OPEN, "Öffnen", wx.Bitmap(res_dir + "/open_archive.png"),
+        open_archive_tool = toolbar.AddTool(wx.ID_OPEN, "Öffnen", images.open_archive.GetBitmap(),
                                             "Bestehendes Archiv öffnen")
         toolbar.AddSeparator()
-        extract_archive_tool = toolbar.AddTool(wx.ID_ANY, "Extrahieren", wx.Bitmap(res_dir + "/extract_archive.png"),
+        extract_archive_tool = toolbar.AddTool(wx.ID_ANY, "Extrahieren", images.extract_archive.GetBitmap(),
                                                "Ausgewählte Dateien extrahieren")
         toolbar.AddSeparator()
-        verify_archive_tool = toolbar.AddTool(wx.ID_ANY, "Überprüfen", wx.Bitmap(res_dir + "/verify_archive.png"),
+        verify_archive_tool = toolbar.AddTool(wx.ID_ANY, "Überprüfen", images.verify_archive.GetBitmap(),
                                               "Archiv überprüfen (CRC, Header)")
         toolbar.AddSeparator()
-        create_archive_tool = toolbar.AddTool(wx.ID_NEW, "Erstellen", wx.Bitmap(res_dir + "/new_archive.png"),
+        create_archive_tool = toolbar.AddTool(wx.ID_NEW, "Erstellen", images.new_archive.GetBitmap(),
                                               "Neues Archiv erstellen")
         self.Bind(wx.EVT_TOOL, self.open_zip, open_archive_tool)
         self.Bind(wx.EVT_TOOL, self.extract_from_zip, extract_archive_tool)
@@ -213,7 +214,7 @@ class CreateZipDialog(wx.Dialog):
         self.zip_compression_method = zipfile.ZIP_STORED
         self.create_zip_success = False
 
-        self.SetIcon(wx.Icon(res_dir + "/PyZIP.ico"))
+        self.SetIcon(images.PyZIP.GetIcon())
 
         self.UI()
         self.Centre()
@@ -425,8 +426,6 @@ class CreateZipDialog(wx.Dialog):
         else:
             wx.MessageBox("Keine Dateien ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
 
-
-res_dir = "res" if hasattr(sys, "frozen") else os.path.expanduser("~") + "/PyZIP/res"
 
 app = wx.App()
 window = Application(None, title="PyZIP", size=(425, 350))
