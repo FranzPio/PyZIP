@@ -75,8 +75,8 @@ class Application(wx.Frame):
         self.archive_contents_olv.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.open_archive_member)
         hbox1.Add(self.archive_contents_olv, 1, wx.EXPAND)
         vbox.Add(hbox1, 10, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 5)
-        self.archive_member_count_text = wx.StaticText(self, label="0 Dateien.",
-                                                       style=wx.ALIGN_RIGHT)
+        self.archive_member_count_text = wx.StaticText(self, label="0 Dateien",
+                                                       style=wx.ST_NO_AUTORESIZE | wx.ALIGN_RIGHT)
         hbox2.Add(self.archive_member_count_text, 1, wx.EXPAND)
         vbox.Add(hbox2, 1, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 5)
         vbox.Add((-1, 5))
@@ -93,9 +93,9 @@ class Application(wx.Frame):
             if os.name == "posix":
                 subprocess.call(["xdg-open", path_to_temp_extracted])
             elif os.name == "nt":
-                subprocess.call(["start", "\"" + path_to_temp_extracted + "\""])
+                subprocess.call(["start", path_to_temp_extracted], shell=True)
         except:
-            wx.MessageBox("Unerwarteter Fehler\n\n" + sys.exc_info(), "Error", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox("Unerwarteter Fehler\n\n" + str(sys.exc_info()[1]), "Error", wx.OK | wx.ICON_ERROR)
 
     def open_with_PyZIP(self, path_to_zip):
         archive_member_count = 0
@@ -110,7 +110,7 @@ class Application(wx.Frame):
                         "changed": str(zip_member.date_time[2]) + "." + str(zip_member.date_time[1]) + "." +
                         str(zip_member.date_time[0])}])
                     archive_member_count += 1
-            self.archive_member_count_text.SetLabel(str(archive_member_count) + " Dateien.")
+            self.archive_member_count_text.SetLabel(str(archive_member_count) + " Dateien")
         except zipfile.BadZipFile:
             wx.MessageBox("\"" + filename_of_zip + "\" ist keine gültige " + "Archivdatei oder sie ist beschädigt!",
                           "Fehler", wx.OK | wx.ICON_EXCLAMATION)
@@ -134,7 +134,7 @@ class Application(wx.Frame):
                         "changed": str(zip_member.date_time[2]) + "." + str(zip_member.date_time[1]) + "." +
                         str(zip_member.date_time[0])}])
                     archive_member_count += 1
-            self.archive_member_count_text.SetLabel(str(archive_member_count) + " Dateien.")
+            self.archive_member_count_text.SetLabel(str(archive_member_count) + " Dateien")
         except zipfile.BadZipFile:
             wx.MessageBox("\"" + filename_of_zip + "\" ist keine gültige " + file_extension_of_zip + "-Datei "
                           "oder sie ist beschädigt!",
@@ -431,3 +431,4 @@ res_dir = "res" if hasattr(sys, "frozen") else os.path.expanduser("~") + "/PyZIP
 app = wx.App()
 window = Application(None, title="PyZIP", size=(425, 350))
 app.MainLoop()
+
