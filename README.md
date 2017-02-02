@@ -34,7 +34,7 @@ Archivmanager in Python mit wxPython
 
 - bei Problemen mit Zertifikat, SmartScreen-Filter etc.
 
-  ``certutil -user -addstore Root "SPEICHERORT/PyZIP/res/CA.cer"``
+  ``certutil -user -addstore Root "<SPEICHERORT>/CA.cer"``
 
 ***
 #### Source
