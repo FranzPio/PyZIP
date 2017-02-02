@@ -5,6 +5,7 @@ Archivmanager in Python mit wxPython
 
 - Kompression von einer / mehreren beliebigen Dateien / Ordnern
 - Anzeigen von Inhalten eines Archivs (+ Dateiinformationen)
+- Öffnen von Archivmitgliedern direkt aus PyZIP heraus
 - Extrahieren einzelner / aller Dateien eines Archivs
 - Überprüfen eines Archivs (CRCs, Header)
 
@@ -18,9 +19,8 @@ Archivmanager in Python mit wxPython
 ***
 ### To do
 
+- Ver- / Entschlüsselung -> passwortgeschützte Archive
 - Internationalisierung (u.a. Englisch)
-- direktes Öffnen von Archivmitgliedern mit entsprechenden Programmen aus PyZIP heraus
-- (Windows) "Öffnen mit..." -> "PyZIP"
 - Entwickler- / Programminformationen aus PyZIP entnehmbar
 
 ##### u.v.m.
