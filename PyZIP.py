@@ -91,7 +91,9 @@ class Application(wx.Frame):
             with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                 filename_of_temp_extracted = self.archive_contents_olv.GetSelectedObject()["filename"]
                 path_to_temp_extracted = os.path.join(tempfile.gettempdir(), filename_of_temp_extracted)
+                busy_cursor = wx.BusyCursor()
                 zip_file.extract(filename_of_temp_extracted, tempfile.gettempdir())
+                del busy_cursor
             if os.name == "posix":
                 subprocess.call(["xdg-open", path_to_temp_extracted])
             elif os.name == "nt":
@@ -367,18 +369,8 @@ class CreateZipDialog(wx.Dialog):
             self.chosen_files_list_box.Clear()
 
     def choose_zip_destination(self, evt):
-        if self.zip_compression_method == zipfile.ZIP_STORED or self.zip_compression_method == zipfile.ZIP_DEFLATED:
-            file_extension = ".zip"
-            wildcard = "ZIP-Archiv (*.zip) | *.zip"
-        elif self.zip_compression_method == zipfile.ZIP_BZIP2:
-            file_extension = ".bz2"
-            wildcard = "BZIP2-Archiv (*.bz2) | *.bz2"
-        elif self.zip_compression_method == zipfile.ZIP_LZMA:
-            file_extension = ".xz"
-            wildcard = "LZMA-Archiv (*.xz) | *.xz"
-        else:
-            file_extension = ""
-            wildcard = ""
+        file_extension = ".zip"
+        wildcard = "ZIP-Archiv (*.zip) | *.zip"
         file_dialog = wx.FileDialog(self, "Speicherort auswählen", "", "", wildcard,
                                     wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if file_dialog.ShowModal() == wx.ID_CANCEL:
