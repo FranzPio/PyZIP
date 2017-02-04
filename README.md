@@ -12,7 +12,7 @@ Archivmanager in Python mit wxPython
 ***
 ### Unterstützte Archivformate
 
-- ZIP (*.zip)
+- **ZIP** (*.zip)
 
   (unkomprimiert / ZIP-komprimiert / BZIP2-komprimiert / LZMA-komprimiert)
 
