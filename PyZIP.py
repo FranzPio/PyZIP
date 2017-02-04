@@ -61,8 +61,9 @@ class Application(wx.Frame):
         toolbar.Realize()
 
     def UI(self):
-        # noinspection PyArgumentList
-        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
+        if os.name != "posix":
+            # noinspection PyArgumentList
+            self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -212,7 +213,6 @@ class CreateZipDialog(wx.Dialog):
         self.files_to_zip = collections.OrderedDict()
         self.zip_destination = None
         self.zip_compression_method = zipfile.ZIP_STORED
-        self.create_zip_success = False
 
         self.SetIcon(images.PyZIP.GetIcon())
 
@@ -223,20 +223,17 @@ class CreateZipDialog(wx.Dialog):
         self.Bind(wx.EVT_CLOSE, self.CloseDialog)
         self.Show()
 
-    def CloseDialog(self, evt):
-        # if not self.create_zip_success:
-        #     confirmation = wx.MessageDialog(None, "Sind Sie sicher?\n\nDialog wirklich schließen?",
-        #                                     "Sicher?", style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
-        #     if confirmation.ShowModal() == wx.ID_NO:
-        #         return
-        self.Destroy()
-
-    def CloseAnyDialog(self, evt):
-        evt.GetEventObject().Destroy()
+    @staticmethod
+    def CloseDialog(evt):
+        if isinstance(evt.GetEventObject(), wx.Dialog):
+            evt.GetEventObject().Destroy()
+        elif isinstance(evt.GetEventObject(), wx.Button):
+            evt.GetEventObject().GetParent().Destroy()
 
     def UI(self):
-        # noinspection PyArgumentList
-        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
+        if os.name != "posix":
+            # noinspection PyArgumentList
+            self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DFACE))
         self.SetFocus()
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.StaticBoxSizer(wx.HORIZONTAL, self, "1.  Dateien für das Archiv auswählen")
@@ -325,7 +322,7 @@ class CreateZipDialog(wx.Dialog):
     def show_chosen_files_dialog(self, evt):
         if self.files_to_zip:
             dlg = wx.Dialog(None, title="Auswahl", style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-            dlg.Bind(wx.EVT_CLOSE, self.CloseAnyDialog)
+            dlg.Bind(wx.EVT_CLOSE, self.CloseDialog)
             vbox = wx.BoxSizer(wx.VERTICAL)
             hbox1 = wx.BoxSizer(wx.HORIZONTAL)
             hbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -339,7 +336,6 @@ class CreateZipDialog(wx.Dialog):
             delete_files_button = wx.Button(dlg, label="Entfernen")
             delete_files_button.Bind(wx.EVT_BUTTON, self.remove_from_zip)
             hbox2.Add(delete_files_button, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT, 5)
-            # vbox.Add((-1, 5))
             vbox.Add(hbox2, 1, wx.EXPAND | wx.ALL, 10)
             self.chosen_files_list_box = wx.CheckListBox(dlg)
             busy_cursor = wx.BusyCursor()
@@ -419,7 +415,6 @@ class CreateZipDialog(wx.Dialog):
                 else:
                     del busy_info
                     del busy_cursor
-                    self.create_zip_success = True
                     wx.MessageBox("Archiv erfolgreich erstellt!", "Info", wx.OK | wx.ICON_INFORMATION)
             else:
                 wx.MessageBox("Kein Speicherort ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
