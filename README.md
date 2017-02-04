@@ -19,6 +19,7 @@ Archivmanager in Python mit wxPython
 ***
 ### To do
 
+- Unterstützung weiterer Formate
 - Ver- / Entschlüsselung -> passwortgeschützte Archive
 - Internationalisierung (u.a. Englisch)
 - Entwickler- / Programminformationen aus PyZIP entnehmbar
