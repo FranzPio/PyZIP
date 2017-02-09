@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import wx
+import wx.adv
 import ObjectListView as olv
 import zipfile
 import os.path
@@ -54,10 +55,15 @@ class Application(wx.Frame):
         toolbar.AddSeparator()
         create_archive_tool = toolbar.AddTool(wx.ID_NEW, "Erstellen", images.new_archive.GetBitmap(),
                                               "Neues Archiv erstellen")
+        toolbar.AddSeparator()
+        toolbar.AddStretchableSpace()
+        about_info = toolbar.AddTool(wx.ID_ABOUT, "Info", images.about_info.GetBitmap(),
+                                       "Über PyZIP")
         self.Bind(wx.EVT_TOOL, self.open_zip, open_archive_tool)
         self.Bind(wx.EVT_TOOL, self.extract_from_zip, extract_archive_tool)
         self.Bind(wx.EVT_TOOL, self.verify_zip, verify_archive_tool)
         self.Bind(wx.EVT_TOOL, self.create_zip, create_archive_tool)
+        self.Bind(wx.EVT_TOOL, self.about_dialog, about_info)
         toolbar.Realize()
 
     def UI(self):
@@ -202,6 +208,17 @@ class Application(wx.Frame):
         create_zip_dialog = CreateZipDialog(None, title="Neues Archiv",
                                             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         create_zip_dialog.ShowModal()
+
+    def about_dialog(self, evt):
+        about_info = wx.adv.AboutDialogInfo()
+        about_info.SetName("PyZIP")
+        about_info.SetVersion("1.0")
+        about_info.SetIcon(images.PyZIP.GetIcon())
+        about_info.SetDescription("Archivmanager\nfür Windows und Linux\nin Python mit wxPython")
+        about_info.SetCopyright("(C) 2017 Franz Piontek")
+        about_info.SetWebSite("https://github.com/FranzPio/PyZIP", "\u21E8  Programmwebsite")
+        # about_info.AddDeveloper("Franz Piontek")
+        wx.adv.AboutBox(about_info)
 
     @staticmethod
     def under_development(evt):
