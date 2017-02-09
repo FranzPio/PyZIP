@@ -217,7 +217,6 @@ class Application(wx.Frame):
         about_info.SetDescription("Archivmanager\nfür Windows und Linux\nin Python mit wxPython")
         about_info.SetCopyright("(C) 2017 Franz Piontek")
         about_info.SetWebSite("https://github.com/FranzPio/PyZIP", "\u21E8  Programmwebsite")
-        # about_info.AddDeveloper("Franz Piontek")
         wx.adv.AboutBox(about_info)
 
     @staticmethod
