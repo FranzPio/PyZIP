@@ -10,6 +10,7 @@ import datetime
 import subprocess
 import tempfile
 import images
+import locales
 
 
 class Application(wx.Frame):
@@ -29,15 +30,15 @@ class Application(wx.Frame):
         except IndexError:
             pass
         except FileNotFoundError:
-            wx.MessageBox("Archiv existiert nicht\n\n" + str(sys.exc_info()[1]),
-                          "Fehler", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox(strings.archive_not_existing_error + "\n\n" + str(sys.exc_info()[1]),
+                          strings.error, wx.OK | wx.ICON_ERROR)
         except:
             wx.MessageBox("Öffnen des Archivs fehlgeschlagen\n\n" + str(sys.exc_info()[1]),
                           "Unerwarteter Fehler", wx.OK | wx.ICON_ERROR)
 
     def CloseApp(self, evt):
         if self.archive_contents_olv.ItemCount > 0:
-            confirmation = wx.MessageDialog(None, "Sind Sie sicher?\n\nPyZIP wirklich beenden?", "Sicher?",
+            confirmation = wx.MessageDialog(None, strings.are_you_sure + "\n\n" + strings.really_quit, strings.sure,
                                             style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
             if confirmation.ShowModal() == wx.ID_NO:
                 return
@@ -389,7 +390,7 @@ class CreateZipDialog(wx.Dialog):
 
     def choose_zip_destination(self, evt):
         file_extension = ".zip"
-        wildcard = "ZIP-Archiv (*.zip) | *.zip"
+        wildcard = "ZIP-Archiv (*.zip) |*.zip"
         file_dialog = wx.FileDialog(self, "Speicherort auswählen", "", "", wildcard,
                                     wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if file_dialog.ShowModal() == wx.ID_CANCEL:
@@ -432,6 +433,8 @@ class CreateZipDialog(wx.Dialog):
         else:
             wx.MessageBox("Keine Dateien ausgewählt!", "Fehler", wx.OK | wx.ICON_EXCLAMATION)
 
+
+strings = locales.Locale("de")
 
 app = wx.App()
 window = Application(None, title="PyZIP", size=(425, 350))
