@@ -1,3 +1,7 @@
+# 'locales.py'
+#  contains language-specific strings for all the texts, labels, messages etc. in PyZIP
+
+
 class Locale:
 
     def __init__(self, language):
