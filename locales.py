@@ -29,7 +29,7 @@ class Locale:
             self.no_destination_chosen = "Kein Speicherort ausgewählt!"
             self.no_files_to_zip_chosen = "Keine Dateien ausgewählt!"
 
-            # informations
+            # information
             self.information = "Info"
             self.extract_success_information = "Dateien erfolgreich extrahiert!"
             self.create_success_information = "Archiv erfolgreich erstellt!"
@@ -104,4 +104,111 @@ class Locale:
             self.create_archive = "Archiv erstellen"
 
         elif language == "en":
-            return
+            # errors
+            self.error = "Error"
+            self.unexpected_error = "Unexpected error"
+            self.archive_not_existing_error = "Archive doesn't exist"
+            self.archive_open_error = "Opening archive failed"
+            self.invalid_archive = "is either not a valid archive or it is corrupted."
+            self.invalid_archive_1 = "is either not a valid"
+            self.invalid_archive_2 = " file or it is corrupted."
+            self.file_not_found_error_1 = "The archive"
+            self.file_not_found_error_2 = "cannot be found."
+            self.file_not_found_error_3 = "It was deleted, moved or renamed while viewing."
+            self.file_not_found_error_1_1 = "During creation at least one file"
+            self.file_not_found_error_1_2 = "was deleted, moved or renamed."
+            self.extract_error = "Extraction failed!"
+            self.verify_error = "Verification failed!"
+            self.corrupted_error = "In most cases this means that the archive is corrupted."
+            self.create_error = "Creating the archive failed!"
+            self.error_code = "This error code may provide further information."
+            self.verify_warning_1 = "At least one defect found."
+            self.verify_warning_2 = "First bad file"
+            self.no_destination_chosen = "No destination folder specified!"
+            self.no_files_to_zip_chosen = "No files selected!"
+
+            # information
+            self.information = "Information"
+            self.extract_success_information = "Files were extracted successfully!"
+            self.create_success_information = "Archive created successfully!"
+            self.verify_information_1 = "No bad files found!"
+            self.verify_information_2 = "CRCs and file headers are OK."
+
+            # phrases
+            self.sure = "Really?"
+            self.are_you_sure = "Are you sure?"
+            self.really_quit = "Really quit PyZIP"
+            self.really_clear_list = "Really clear list?"
+            self.please_wait = "Please wait"
+            self.busy_info = "Archive is being created..."
+            self.close = "Close"
+            self.result = "Result"
+
+            # toolbar
+            self.open_tool_label = "Open"
+            self.open_tool_shortHelp = "Open existing archive"
+            self.extract_tool_label = "Extract"
+            self.extract_tool_shortHelp = "Extract selected files"
+            self.verify_tool_label = "Verify"
+            self.verify_tool_shortHelp = "Verify archive (CRCs, file headers)"
+            self.create_tool_label = "Create"
+            self.create_tool_shortHelp = "Create new archive"
+            self.about_tool_label = "About"
+            self.about_tool_shortHelp = "About PyZIP"
+
+            # ListCtrl
+            self.filename_column = "Filename"
+            self.size_column = "Size"
+            self.changed_column = "Last changed"
+            self.empty_list = "No archive opened"
+
+            self.archive_member_count_0_files = "0 files"
+            self.archive_member_count_files = "files"
+
+            # file dialogs
+            self.wildcard_archives = "Archives|*.zip;*.bz2;*.xz;*.lzma"
+            self.wildcard_zip = "ZIP archive (*.zip) |*.zip"
+            self.choose_files_title = "Select files"
+            self.choose_folder_title = "Select folders"
+            self.choose_destination_title = "Choose destination folder"
+
+            # about dialog
+            self.about_dialog_description_1 = "Archive manager"
+            self.about_dialog_description_2 = "for Windows and Linux"
+            self.about_dialog_description_3 = "using Python and wxPython"
+            self.about_dialog_website_description = "\u21E8  Program website"
+
+            # under development dialog
+            self.under_development = "This functionality is being developed actively."
+            self.beta_version = "Not available yet"
+
+            # create archive dialog
+            self.create_zip_title = "New archive"
+            self.create_zip_box_sizer_1 = "1.  Select files to include"
+            self.create_zip_box_sizer_2 = "2.  Choose compression method"
+            self.create_zip_box_sizer_3 = "3.  Choose destination folder"
+            self.open_file = "Open file..."
+            self.open_folder = "Open folder..."
+            self.selection = "Selection"
+            self.show_selection = "Show selected"
+            self.chosen_files = "Selected files and folders"
+            self.clear_list = "Clear list"
+            self.remove = "Remove"
+            self.compression_method_zip_stored = "ZIP"
+            self.compression_method_zip_deflated = "ZIP (compressed)"
+            self.compression_method_zip_bzip2 = "BZIP2"
+            self.compression_method_zip_lzma = "LZMA"
+            self.zip_destination = "Destination folder:"
+            self.create_archive = "Create archive"
+
+        else:
+            try:
+                import wx
+                app = wx.App()
+                wx.MessageBox("\"" + language + "\" language is not available!", "Unexpected error",
+                              style=wx.OK | wx.ICON_ERROR)
+                del app
+            finally:
+                raise SystemExit("Error: \"" + language + "\" language is not available!\n"
+                                 + "PyZIP could not be executed correctly.\n\n"
+                                 + "Contact the developer: https://github.com/FranzPio/PyZIP")

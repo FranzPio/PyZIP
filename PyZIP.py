@@ -16,6 +16,7 @@ import locales
 class Application(wx.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.InitLocale()
 
         self.SetIcon(images.PyZIP.GetIcon())
         self.SetMinSize((400, 300))
@@ -43,6 +44,24 @@ class Application(wx.Frame):
             if confirmation.ShowModal() == wx.ID_NO:
                 return
         self.Destroy()
+
+    @staticmethod
+    def InitLocale():
+        global strings
+        try:
+            with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "r") as settings_file:
+                language = settings_file.read().split("=")[-1]
+                if language in ("de", "en"):
+                    strings = locales.Locale(language)
+                else:
+                    strings = locales.Locale("de")
+                    os.remove(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"))
+                    with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "w") as settings_file:
+                        settings_file.write("language=de")
+        except FileNotFoundError:
+            strings = locales.Locale("de")
+            with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "w") as settings_file:
+                settings_file.write("language=de")
 
     def toolbar(self):
         toolbar = self.CreateToolBar(style=wx.TB_TEXT)
@@ -433,8 +452,7 @@ class CreateZipDialog(wx.Dialog):
             wx.MessageBox(strings.no_files_to_zip_chosen, strings.error, wx.OK | wx.ICON_EXCLAMATION)
 
 
-strings = locales.Locale("de")
-
-app = wx.App()
-window = Application(None, title="PyZIP", size=(425, 350))
-app.MainLoop()
+if __name__ == "__main__":
+    app = wx.App()
+    window = Application(None, title="PyZIP", size=(425, 350))
+    app.MainLoop()
