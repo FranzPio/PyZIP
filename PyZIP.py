@@ -6,6 +6,7 @@ import zipfile
 import os.path
 import sys
 import collections.abc
+import datetime
 import subprocess
 import tempfile
 import images
@@ -58,7 +59,7 @@ class Application(wx.Frame):
         toolbar.AddSeparator()
         toolbar.AddStretchableSpace()
         about_info = toolbar.AddTool(wx.ID_ABOUT, "Info", images.about_info.GetBitmap(),
-                                       "Über PyZIP")
+                                     "Über PyZIP")
         self.Bind(wx.EVT_TOOL, self.open_zip, open_archive_tool)
         self.Bind(wx.EVT_TOOL, self.extract_from_zip, extract_archive_tool)
         self.Bind(wx.EVT_TOOL, self.verify_zip, verify_archive_tool)
@@ -73,12 +74,13 @@ class Application(wx.Frame):
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.archive_contents_olv = olv.ObjectListView(self, style=wx.LC_REPORT)
+        self.archive_contents_olv = olv.FastObjectListView(self, sortable=True, style=wx.LC_REPORT)
         self.archive_contents_olv.SetColumns([
             olv.ColumnDefn("Dateiname", "right", valueGetter="filename", isSpaceFilling=True),
             olv.ColumnDefn("Größe", "right", 80, "size", isSpaceFilling=False),
-            olv.ColumnDefn("Änderungsdatum", "right", 140, valueGetter="changed", isSpaceFilling=False)])
-        self.archive_contents_olv.AutoSizeColumns()
+            olv.ColumnDefn("Änderungsdatum", "right", 140, "changed", isSpaceFilling=False,
+                           stringConverter="%d.%m.%Y")])
+        # self.archive_contents_olv.AutoSizeColumns()
         self.archive_contents_olv.SetEmptyListMsg("Kein Archiv ausgewählt")
         self.archive_contents_olv.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.open_archive_member)
         hbox1.Add(self.archive_contents_olv, 1, wx.EXPAND)
@@ -117,8 +119,8 @@ class Application(wx.Frame):
                     self.archive_contents_olv.AddObjects([{
                         "filename": zip_member.filename,
                         "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB",
-                        "changed": str(zip_member.date_time[2]) + "." + str(zip_member.date_time[1]) + "." +
-                        str(zip_member.date_time[0])}])
+                        "changed": datetime.datetime(zip_member.date_time[0], zip_member.date_time[1],
+                                                     zip_member.date_time[2])}])
                     archive_member_count += 1
             self.archive_member_count_text.SetLabel(str(archive_member_count) + " Dateien")
         except zipfile.BadZipFile:
@@ -140,9 +142,10 @@ class Application(wx.Frame):
                 for zip_member in zip_file.infolist():
                     self.archive_contents_olv.AddObjects([{
                         "filename": zip_member.filename,
-                        "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB",
-                        "changed": str(zip_member.date_time[2]) + "." + str(zip_member.date_time[1]) + "." +
-                        str(zip_member.date_time[0])}])
+                        "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB"
+                        if zip_member.compress_size > 1000 else str(zip_member.compress_size) + " KB",
+                        "changed": datetime.datetime(zip_member.date_time[0], zip_member.date_time[1],
+                                                     zip_member.date_time[2])}])
                     archive_member_count += 1
             self.archive_member_count_text.SetLabel(str(archive_member_count) + " Dateien")
         except zipfile.BadZipFile:
