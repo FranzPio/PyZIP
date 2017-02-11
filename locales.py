@@ -4,6 +4,12 @@
 
 class Locale:
 
+    LANGUAGES = {"Deutsch": "de", "English": "en"}
+    choose_language = "Sprache auswählen"
+    choose_language_for_PyZIP = "Bitte wählen Sie eine Sprache für PyZIP aus:"
+    okay = "OK"
+    cancel = "Abbrechen"
+
     def __init__(self, language):
         if language == "de":
             # errors
@@ -137,11 +143,11 @@ class Locale:
             # phrases
             self.sure = "Really?"
             self.are_you_sure = "Are you sure?"
-            self.really_quit = "Really quit PyZIP"
+            self.really_quit = "Really quit PyZIP?"
             self.really_clear_list = "Really clear list?"
             self.please_wait = "Please wait"
             self.busy_info = "Archive is being created..."
-            self.close = "Close"
+            self.close = "Cancel"
             self.result = "Result"
 
             # toolbar
@@ -198,7 +204,7 @@ class Locale:
             self.compression_method_zip_deflated = "ZIP (compressed)"
             self.compression_method_zip_bzip2 = "BZIP2"
             self.compression_method_zip_lzma = "LZMA"
-            self.zip_destination = "Destination folder:"
+            self.zip_destination = "Destination:"
             self.create_archive = "Create archive"
 
         else:
