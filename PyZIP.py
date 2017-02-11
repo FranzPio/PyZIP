@@ -11,6 +11,38 @@ import subprocess
 import tempfile
 import images
 import locales
+import threading
+import time
+
+
+class Time(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.start_time = time.time()
+
+    def run(self):
+        global is_creating
+        while is_creating:
+            mins, secs = divmod(round(time.time() - self.start_time, 2), 60)
+            create_zip_dialog.time_text.SetLabel("Verstrichene Zeit:\n"
+                                                 + str(int(mins)) + " min "
+                                                 + str(int(secs)) + " s")
+            time.sleep(0.05)
+
+
+class ProgressBar(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        global is_creating
+        with zipfile.ZipFile(create_zip_dialog.zip_destination, "w",
+                             compression=create_zip_dialog.zip_compression_method) as zip_file:
+            for filename, filepath in create_zip_dialog.files_to_zip.items():
+                create_zip_dialog.file_text.SetLabel("Datei:\n" + filename)
+                zip_file.write(filepath, filename)
+                wx.CallAfter(create_zip_dialog.update_progess, None)
+        is_creating = False
 
 
 class Application(wx.Frame):
@@ -271,6 +303,7 @@ class Application(wx.Frame):
 
     @staticmethod
     def create_zip(evt):
+        global create_zip_dialog
         create_zip_dialog = CreateZipDialog(None, title=strings.create_zip_title,
                                             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         create_zip_dialog.ShowModal()
@@ -462,32 +495,64 @@ class CreateZipDialog(wx.Dialog):
         self.zip_destination = path_to_zip if path_to_zip.endswith(file_extension) else path_to_zip + file_extension
         self.zip_destination_textctrl.SetValue(self.zip_destination)
 
+    def update_progess(self, msg):
+        self.count += 1
+        if self.count >= PROGRESS_RANGE:
+            self.dlg.Destroy()
+            return
+        self.progress.SetValue(self.count)
+
     def create_zip(self, evt):
+        global PROGRESS_RANGE
+        global is_creating
         if self.files_to_zip:
             if self.zip_destination:
                 if os.path.isfile(self.zip_destination):
                     os.remove(self.zip_destination)
-                busy_cursor = wx.BusyCursor()
-                busy_info = wx.BusyInfo(strings.please_wait + ",\n" + strings.busy_info)
+                # busy_cursor = wx.BusyCursor()
+                # busy_info = wx.BusyInfo(strings.please_wait + ",\n" + strings.busy_info)
                 try:
-                    with zipfile.ZipFile(self.zip_destination, "w", compression=self.zip_compression_method) as zip_file:
-                        for filename, filepath in self.files_to_zip.items():
-                            zip_file.write(filepath, filename)
+                    PROGRESS_RANGE = len(self.files_to_zip.keys())
+                    self.dlg = wx.Dialog(None, title="Fortschritt")
+                    self.count = 0
+                    vbox = wx.BoxSizer(wx.VERTICAL)
+                    hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+                    hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self.dlg, "Informationen")
+                    hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+                    archive_creation_text = wx.StaticText(self.dlg, label=strings.please_wait + ", "
+                                                          + strings.busy_info)
+                    hbox1.Add(archive_creation_text, 1, wx.EXPAND | wx.TOP | wx.RIGHT, 5)
+                    vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 10)
+                    self.time_text = wx.StaticText(self.dlg, label="Verstrichene Zeit:\n0 Sekunden")
+                    hbox2.Add(self.time_text, 1, wx.EXPAND | wx.RIGHT, 20)
+                    self.file_text = wx.StaticText(self.dlg, label="Datei:\n", style=wx.ST_ELLIPSIZE_MIDDLE)
+                    hbox2.Add(self.file_text, 2, wx.EXPAND)
+                    vbox.Add(hbox2, 2, wx.EXPAND | wx.ALL, 10)
+                    vbox.Add((-1, 15))
+                    self.progress = wx.Gauge(self.dlg, range=PROGRESS_RANGE)
+                    hbox3.Add(self.progress, 1, wx.EXPAND | wx.BOTTOM, 10)
+                    vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
+                    self.dlg.SetSizer(vbox)
+                    self.dlg.SetSize((350, 225))
+                    is_creating = True
+                    ProgressBar().start()
+                    Time().start()
+                    self.dlg.ShowModal()
                 except FileNotFoundError:
-                    del busy_info
-                    del busy_cursor
+                    # del busy_info
+                    # del busy_cursor
                     wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
                                   + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
                     os.remove(self.zip_destination)
                 except:
-                    del busy_info
-                    del busy_cursor
+                    # del busy_info
+                    # del busy_cursor
                     wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
                                   + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
                     os.remove(self.zip_destination)
                 else:
-                    del busy_info
-                    del busy_cursor
+                    # del busy_info
+                    # del busy_cursor
                     wx.MessageBox(strings.create_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
             else:
                 wx.MessageBox(strings.no_destination_chosen, strings.error, wx.OK | wx.ICON_EXCLAMATION)
