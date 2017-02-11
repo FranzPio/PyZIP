@@ -24,7 +24,7 @@ class Time(threading.Thread):
         global is_creating
         while is_creating:
             mins, secs = divmod(round(time.time() - self.start_time, 2), 60)
-            create_zip_dialog.time_text.SetLabel("Verstrichene Zeit:\n"
+            create_zip_dialog.time_text.SetLabel(strings.elapsed_time + "\n"
                                                  + str(int(mins)) + " min "
                                                  + str(int(secs)) + " s")
             time.sleep(0.05)
@@ -39,7 +39,7 @@ class ProgressBar(threading.Thread):
         with zipfile.ZipFile(create_zip_dialog.zip_destination, "w",
                              compression=create_zip_dialog.zip_compression_method) as zip_file:
             for filename, filepath in create_zip_dialog.files_to_zip.items():
-                create_zip_dialog.file_text.SetLabel("Datei:\n" + filename)
+                create_zip_dialog.file_text.SetLabel(strings.file + "\n" + filename)
                 zip_file.write(filepath, filename)
                 wx.CallAfter(create_zip_dialog.update_progess, None)
         is_creating = False
@@ -513,19 +513,19 @@ class CreateZipDialog(wx.Dialog):
                 # busy_info = wx.BusyInfo(strings.please_wait + ",\n" + strings.busy_info)
                 try:
                     PROGRESS_RANGE = len(self.files_to_zip.keys())
-                    self.dlg = wx.Dialog(None, title="Fortschritt")
+                    self.dlg = wx.Dialog(None, title=strings.progress)
                     self.count = 0
                     vbox = wx.BoxSizer(wx.VERTICAL)
                     hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-                    hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self.dlg, "Informationen")
+                    hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self.dlg, strings.informations)
                     hbox3 = wx.BoxSizer(wx.HORIZONTAL)
                     archive_creation_text = wx.StaticText(self.dlg, label=strings.please_wait + ", "
                                                           + strings.busy_info)
                     hbox1.Add(archive_creation_text, 1, wx.EXPAND | wx.TOP | wx.RIGHT, 5)
                     vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 10)
-                    self.time_text = wx.StaticText(self.dlg, label="Verstrichene Zeit:\n0 Sekunden")
+                    self.time_text = wx.StaticText(self.dlg, label=strings.elapsed_time + "\n0 min 0 s")
                     hbox2.Add(self.time_text, 1, wx.EXPAND | wx.RIGHT, 20)
-                    self.file_text = wx.StaticText(self.dlg, label="Datei:\n", style=wx.ST_ELLIPSIZE_MIDDLE)
+                    self.file_text = wx.StaticText(self.dlg, label=strings.file + "\n", style=wx.ST_ELLIPSIZE_MIDDLE)
                     hbox2.Add(self.file_text, 2, wx.EXPAND)
                     vbox.Add(hbox2, 2, wx.EXPAND | wx.ALL, 10)
                     vbox.Add((-1, 15))

@@ -109,6 +109,11 @@ class Locale:
             self.zip_destination = "Speicherort:"
             self.create_archive = "Archiv erstellen"
 
+            self.progress = "Fortschritt"
+            self.informations = "Informationen"
+            self.elapsed_time = "Verstrichene Zeit:"
+            self.file = "Datei:"
+
         elif language == "en":
             # errors
             self.error = "Error"
@@ -146,7 +151,7 @@ class Locale:
             self.really_quit = "Really quit PyZIP?"
             self.really_clear_list = "Really clear list?"
             self.please_wait = "Please wait"
-            self.busy_info = "Archive is being created..."
+            self.busy_info = "archive is being created..."
             self.close = "Cancel"
             self.result = "Result"
 
@@ -206,6 +211,11 @@ class Locale:
             self.compression_method_zip_lzma = "LZMA"
             self.zip_destination = "Destination:"
             self.create_archive = "Create archive"
+
+            self.progress = "Progress"
+            self.informations = "Information"
+            self.elapsed_time = "Elapsed time:"
+            self.file = "File:"
 
         else:
             try:
