@@ -8,6 +8,7 @@ Minimalistischer Archivmanager in Python mit wxPython
 - Öffnen von Archivmitgliedern direkt aus PyZIP heraus
 - Extrahieren einzelner / aller Dateien eines Archivs
 - Überprüfen eines Archivs (CRCs, Header)
+- Sprachen: Deutsch + Englisch
 
 ***
 ### Unterstützte Archivformate
@@ -19,10 +20,9 @@ Minimalistischer Archivmanager in Python mit wxPython
 ***
 ### To do
 
-- Unterstützung weiterer Formate
+- Unterstützung weiterer Formate (z.B. *.tar)
 - Ver- / Entschlüsselung -> passwortgeschützte Archive
-- Internationalisierung (u.a. Englisch)
-- Entwickler- / Programminformationen aus PyZIP entnehmbar
+- Einstellungsfenster zum Ändern von Farben, Sprache,...
 
 ##### u.v.m.
 
