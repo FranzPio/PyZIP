@@ -351,7 +351,7 @@ class CreateZipDialog(wx.Dialog):
 
         self.files_to_zip = collections.OrderedDict()
         self.zip_destination = None
-        self.zip_compression_method = zipfile.ZIP_STORED
+        self.zip_compression_method = zipfile.ZIP_DEFLATED
 
         self.SetIcon(images.PyZIP.GetIcon())
 
@@ -411,6 +411,7 @@ class CreateZipDialog(wx.Dialog):
         compression_method_zip_stored_button.compression = zipfile.ZIP_STORED
         compression_method_zip_stored_button.Bind(wx.EVT_RADIOBUTTON, self.set_compression_method)
         compression_method_zip_deflated_button = wx.RadioButton(self, label=strings.compression_method_zip_deflated)
+        compression_method_zip_deflated_button.SetValue(True)
         compression_method_zip_deflated_button.compression = zipfile.ZIP_DEFLATED
         compression_method_zip_deflated_button.Bind(wx.EVT_RADIOBUTTON, self.set_compression_method)
         compression_method_zip_bzip2_button = wx.RadioButton(self, label=strings.compression_method_zip_bzip2)
@@ -489,13 +490,14 @@ class CreateZipDialog(wx.Dialog):
             delete_files_button = wx.Button(dlg, label=strings.remove)
             delete_files_button.Bind(wx.EVT_BUTTON, self.remove_from_zip)
             hbox2.Add(delete_files_button, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT, 5)
-            vbox.Add(hbox2, 1, wx.EXPAND | wx.ALL, 10)
+            vbox.Add((-1, 10))
+            vbox.Add(hbox2, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT | wx.RIGHT, 10)
             self.chosen_files_list_box = wx.CheckListBox(dlg)
             busy_cursor = wx.BusyCursor()
             for file in self.files_to_zip.keys():
                 self.chosen_files_list_box.Append(file)
             hbox3.Add(self.chosen_files_list_box, 1, wx.EXPAND)
-            vbox.Add(hbox3, 3, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
+            vbox.Add(hbox3, 4, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
             self.chosen_files_list_box.SetFocus()
             dlg.SetSizer(vbox)
             dlg.SetMinSize((380, 270))
