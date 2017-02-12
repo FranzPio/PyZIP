@@ -29,7 +29,8 @@ class Time(threading.Thread):
                                                  + str(int(secs)) + " s")
             time.sleep(0.1)
 
-    def stop(self):
+    @staticmethod
+    def stop():
         global is_creating
         is_creating = False
 
@@ -60,8 +61,8 @@ class ProgressBar(threading.Thread):
                 is_creating = False
                 wx.MessageBox(strings.create_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
 
-
-    def stop(self):
+    @staticmethod
+    def stop():
         global is_creating
         is_creating = False
 
@@ -86,7 +87,7 @@ class Application(wx.Frame):
         except FileNotFoundError:
             wx.MessageBox(strings.archive_not_existing_error + "\n\n" + str(sys.exc_info()[1]),
                           strings.error, wx.OK | wx.ICON_ERROR)
-        except:
+        except Exception:
             wx.MessageBox(strings.archive_open_error + "\n\n" + str(sys.exc_info()[1]),
                           strings.unexpected_error, wx.OK | wx.ICON_ERROR)
 
@@ -98,7 +99,7 @@ class Application(wx.Frame):
                 return
         self.Destroy()
 
-    def CloseDialog(self, evt):
+    def CloseDialogAndExit(self, evt):
         if isinstance(evt.GetEventObject(), wx.Dialog):
             evt.GetEventObject().Destroy()
         elif isinstance(evt.GetEventObject(), wx.Button):
@@ -118,12 +119,9 @@ class Application(wx.Frame):
                     with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "w") as settings_file:
                         settings_file.write("language=de")
         except FileNotFoundError:
-            # strings = locales.Locale("de")
-            # with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "w") as settings_file:
-            #     settings_file.write("language=de")
             dlg = wx.Dialog(None, title=locales.Locale.choose_language)
             dlg.SetIcon(images.PyZIP.GetIcon())
-            dlg.Bind(wx.EVT_CLOSE, self.CloseDialog)
+            dlg.Bind(wx.EVT_CLOSE, self.CloseDialogAndExit)
             vbox = wx.BoxSizer(wx.VERTICAL)
             hbox1 = wx.BoxSizer(wx.HORIZONTAL)
             hbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -139,7 +137,7 @@ class Application(wx.Frame):
             ok_button.SetDefault()
             hbox3.Add(ok_button, 1, wx.EXPAND | wx.RIGHT, 5)
             cancel_button = wx.Button(dlg, label=locales.Locale.cancel)
-            cancel_button.Bind(wx.EVT_BUTTON, self.CloseDialog)
+            cancel_button.Bind(wx.EVT_BUTTON, self.CloseDialogAndExit)
             hbox3.Add(cancel_button, 1, wx.EXPAND)
             vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
             dlg.SetSizer(vbox)
@@ -164,7 +162,8 @@ class Application(wx.Frame):
         open_archive_tool = toolbar.AddTool(wx.ID_OPEN, strings.open_tool_label, images.open_archive.GetBitmap(),
                                             strings.open_tool_shortHelp)
         toolbar.AddSeparator()
-        extract_archive_tool = toolbar.AddTool(wx.ID_ANY, strings.extract_tool_label, images.extract_archive.GetBitmap(),
+        extract_archive_tool = toolbar.AddTool(wx.ID_ANY, strings.extract_tool_label,
+                                               images.extract_archive.GetBitmap(),
                                                strings.extract_tool_shortHelp)
         toolbar.AddSeparator()
         verify_archive_tool = toolbar.AddTool(wx.ID_ANY, strings.verify_tool_label, images.verify_archive.GetBitmap(),
@@ -196,7 +195,7 @@ class Application(wx.Frame):
             olv.ColumnDefn(strings.size_column, "right", 80, "size", isSpaceFilling=False),
             olv.ColumnDefn(strings.changed_column, "right", 140, "changed", isSpaceFilling=False,
                            stringConverter="%d.%m.%Y")])
-        # self.archive_contents_olv.AutoSizeColumns()
+        # self.archive_contents_olv.AutoSizeColumns()  # doesn't do anything???
         self.archive_contents_olv.SetEmptyListMsg(strings.empty_list)
         self.archive_contents_olv.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.open_archive_member)
         hbox1.Add(self.archive_contents_olv, 1, wx.EXPAND)
@@ -209,8 +208,6 @@ class Application(wx.Frame):
         self.SetSizer(vbox)
 
     def open_archive_member(self, evt):
-        # yet only opens the directory the zipfile is located in
-        # should later silently extract the file and open the right application to play / view /... it!
         try:
             with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                 filename_of_temp_extracted = self.archive_contents_olv.GetSelectedObject()["filename"]
@@ -222,7 +219,7 @@ class Application(wx.Frame):
                 subprocess.call(["xdg-open", path_to_temp_extracted])
             elif os.name == "nt":
                 subprocess.call(["start", path_to_temp_extracted], shell=True)
-        except:
+        except Exception:
             wx.MessageBox(strings.unexpected_error + "\n\n" + str(sys.exc_info()[1]), strings.error,
                           wx.OK | wx.ICON_ERROR)
 
@@ -239,7 +236,8 @@ class Application(wx.Frame):
                         "changed": datetime.datetime(zip_member.date_time[0], zip_member.date_time[1],
                                                      zip_member.date_time[2])}])
                     archive_member_count += 1
-            self.archive_member_count_text.SetLabel(str(archive_member_count) + " " + strings.archive_member_count_files)
+            self.archive_member_count_text.SetLabel(
+                str(archive_member_count) + " " + strings.archive_member_count_files)
         except zipfile.BadZipFile:
             wx.MessageBox("\"" + filename_of_zip + "\" " + strings.invalid_archive,
                           strings.error, wx.OK | wx.ICON_EXCLAMATION)
@@ -264,7 +262,8 @@ class Application(wx.Frame):
                         "changed": datetime.datetime(zip_member.date_time[0], zip_member.date_time[1],
                                                      zip_member.date_time[2])}])
                     archive_member_count += 1
-            self.archive_member_count_text.SetLabel(str(archive_member_count) + " " + strings.archive_member_count_files)
+            self.archive_member_count_text.SetLabel(
+                str(archive_member_count) + " " + strings.archive_member_count_files)
         except zipfile.BadZipFile:
             wx.MessageBox("\"" + filename_of_zip + "\" " + strings.invalid_archive_1 + " " + file_extension_of_zip
                           + strings.invalid_archive_2, strings.error, wx.OK | wx.ICON_EXCLAMATION)
@@ -279,9 +278,9 @@ class Application(wx.Frame):
             path_to_zip = file_dialog.GetPath()
             try:
                 if self.archive_contents_olv.GetSelectedObjects():
-                        with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
-                            for selection in self.archive_contents_olv.GetSelectedObjects():
-                                zip_file.extract(selection["filename"], path_to_zip)
+                    with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
+                        for selection in self.archive_contents_olv.GetSelectedObjects():
+                            zip_file.extract(selection["filename"], path_to_zip)
 
                 else:
                     with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
@@ -290,7 +289,7 @@ class Application(wx.Frame):
                 wx.MessageBox(strings.file_not_found_error_1 + " \"" + self.path_to_opened_zip
                               + "\"\n" + strings.file_not_found_error_2 + "\n"
                               + strings.file_not_found_error_3, strings.error, wx.OK | wx.ICON_ERROR)
-            except:
+            except Exception:
                 wx.MessageBox(strings.extract_error + "\n" + strings.corrupted_error + "\n\n"
                               + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
             else:
@@ -317,7 +316,7 @@ class Application(wx.Frame):
                               + "\"\n" + strings.file_not_found_error_2 + "\n"
                               + strings.file_not_found_error_3, strings.error, wx.OK | wx.ICON_ERROR)
 
-            except:
+            except Exception:
                 del busy_cursor
                 wx.MessageBox(strings.verify_error + "\n" + strings.corrupted_error + "\n\n"
                               + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
@@ -449,8 +448,6 @@ class CreateZipDialog(wx.Dialog):
 
     def set_compression_method(self, evt):
         self.zip_compression_method = evt.GetEventObject().compression
-        self.zip_destination = None
-        self.zip_destination_textctrl.SetValue("")
 
     def choose_files_dialog(self, evt):
         busy_cursor = wx.BusyCursor()
@@ -469,41 +466,42 @@ class CreateZipDialog(wx.Dialog):
             return
         for path, folders, files in os.walk(folder_dialog.GetPath()):
             for filename in files:
-                self.files_to_zip[os.path.join(path, filename).replace(folder_dialog.GetPath(), "")]\
+                self.files_to_zip[os.path.join(path, filename).replace(folder_dialog.GetPath(), "")] \
                     = os.path.join(path, filename)
         del busy_cursor
 
     def show_chosen_files_dialog(self, evt):
         if self.files_to_zip:
-            dlg = wx.Dialog(None, title=strings.selection, style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-            dlg.Bind(wx.EVT_CLOSE, self.CloseDialog)
+            show_selection_dlg = wx.Dialog(None, title=strings.selection,
+                                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+            show_selection_dlg.Bind(wx.EVT_CLOSE, self.CloseDialog)
             vbox = wx.BoxSizer(wx.VERTICAL)
             hbox1 = wx.BoxSizer(wx.HORIZONTAL)
             hbox2 = wx.BoxSizer(wx.HORIZONTAL)
             hbox3 = wx.BoxSizer(wx.HORIZONTAL)
-            chosen_files_text = wx.StaticText(dlg, label=strings.chosen_files)
+            chosen_files_text = wx.StaticText(show_selection_dlg, label=strings.chosen_files)
             hbox1.Add(chosen_files_text, 2, wx.EXPAND | wx.LEFT, 5)
             vbox.Add(hbox1, 1, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 10)
-            delete_all_button = wx.Button(dlg, label=strings.clear_list)
+            delete_all_button = wx.Button(show_selection_dlg, label=strings.clear_list)
             delete_all_button.Bind(wx.EVT_BUTTON, self.remove_all_from_zip)
             hbox2.Add(delete_all_button, 1, wx.EXPAND | wx.BOTTOM, 5)
-            delete_files_button = wx.Button(dlg, label=strings.remove)
+            delete_files_button = wx.Button(show_selection_dlg, label=strings.remove)
             delete_files_button.Bind(wx.EVT_BUTTON, self.remove_from_zip)
             hbox2.Add(delete_files_button, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT, 5)
             vbox.Add((-1, 10))
             vbox.Add(hbox2, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT | wx.RIGHT, 10)
-            self.chosen_files_list_box = wx.CheckListBox(dlg)
+            self.chosen_files_list_box = wx.CheckListBox(show_selection_dlg)
             busy_cursor = wx.BusyCursor()
             for file in self.files_to_zip.keys():
                 self.chosen_files_list_box.Append(file)
             hbox3.Add(self.chosen_files_list_box, 1, wx.EXPAND)
             vbox.Add(hbox3, 4, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.RIGHT, 10)
             self.chosen_files_list_box.SetFocus()
-            dlg.SetSizer(vbox)
-            dlg.SetMinSize((380, 270))
-            dlg.SetSize((380, 270))
+            show_selection_dlg.SetSizer(vbox)
+            show_selection_dlg.SetMinSize((380, 270))
+            show_selection_dlg.SetSize((380, 270))
             del busy_cursor
-            dlg.ShowModal()
+            show_selection_dlg.ShowModal()
 
     def remove_from_zip(self, evt):
         try:
@@ -555,7 +553,7 @@ class CreateZipDialog(wx.Dialog):
                     hbox3 = wx.BoxSizer(wx.HORIZONTAL)
                     hbox4 = wx.BoxSizer(wx.HORIZONTAL)
                     archive_creation_text = wx.StaticText(self.dlg, label=strings.please_wait + ", "
-                                                          + strings.busy_info)
+                                                                          + strings.busy_info)
                     hbox1.Add(archive_creation_text, 1, wx.EXPAND | wx.TOP | wx.RIGHT, 5)
                     vbox.Add(hbox1, 1, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 10)
                     self.time_text = wx.StaticText(self.dlg, label=strings.elapsed_time + "\n0 min 0 s")
@@ -581,7 +579,7 @@ class CreateZipDialog(wx.Dialog):
                     self.time_thread = Time()
                     self.time_thread.start()
                     self.dlg.ShowModal()
-                except:
+                except Exception:
                     wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
                                   + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
                     os.remove(self.zip_destination)
