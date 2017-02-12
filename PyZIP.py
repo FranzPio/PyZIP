@@ -27,7 +27,7 @@ class Time(threading.Thread):
             create_zip_dialog.time_text.SetLabel(strings.elapsed_time + "\n"
                                                  + str(int(mins)) + " min "
                                                  + str(int(secs)) + " s")
-            time.sleep(0.05)
+            time.sleep(0.1)
 
     def stop(self):
         global is_creating
@@ -42,15 +42,24 @@ class ProgressBar(threading.Thread):
         global is_creating
         with zipfile.ZipFile(create_zip_dialog.zip_destination, "w",
                              compression=create_zip_dialog.zip_compression_method) as zip_file:
-            for filename, filepath in create_zip_dialog.files_to_zip.items():
-                if is_creating:
-                    create_zip_dialog.file_text.SetLabel(strings.file + "\n" + filename)
-                    zip_file.write(filepath, filename)
-                    wx.CallAfter(create_zip_dialog.update_progess, None)
-                else:
-                    return
-        is_creating = False
-        wx.MessageBox(strings.create_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
+            try:
+                for filename, filepath in create_zip_dialog.files_to_zip.items():
+                    if is_creating:
+                        create_zip_dialog.file_text.SetLabel(strings.file + "\n" + filename)
+                        zip_file.write(filepath, filename)
+                        wx.CallAfter(create_zip_dialog.update_progess, None)
+                    else:
+                        return
+            except FileNotFoundError:
+                is_creating = False
+                wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
+                              + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
+                # os.remove(create_zip_dialog.zip_destination)  # seems to invoke a PermissionError (?)
+                #                                               # (resource being used by another process at the time)
+            else:
+                is_creating = False
+                wx.MessageBox(strings.create_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
+
 
     def stop(self):
         global is_creating
@@ -323,7 +332,7 @@ class Application(wx.Frame):
     def about_dialog(self, evt):
         about_info = wx.adv.AboutDialogInfo()
         about_info.SetName("PyZIP")
-        about_info.SetVersion("1.0")
+        about_info.SetVersion("1.9")
         about_info.SetIcon(images.PyZIP.GetIcon())
         about_info.SetDescription(strings.about_dialog_description_1 + "\n" + strings.about_dialog_description_2 + "\n"
                                   + strings.about_dialog_description_3)
@@ -522,22 +531,19 @@ class CreateZipDialog(wx.Dialog):
 
     def update_progess(self, msg):
         self.count += 1
-        if self.count >= PROGRESS_RANGE:
+        if self.count >= progress_range:
             self.dlg.Destroy()
             return
         self.progress.SetValue(self.count)
 
     def create_zip(self, evt):
-        global PROGRESS_RANGE
-        global is_creating
+        global progress_range, is_creating
         if self.files_to_zip:
             if self.zip_destination:
                 if os.path.isfile(self.zip_destination):
                     os.remove(self.zip_destination)
-                # busy_cursor = wx.BusyCursor()
-                # busy_info = wx.BusyInfo(strings.please_wait + ",\n" + strings.busy_info)
                 try:
-                    PROGRESS_RANGE = len(self.files_to_zip.keys())
+                    progress_range = len(self.files_to_zip.keys())
                     self.dlg = wx.Dialog(None, title=strings.progress)
                     self.dlg.Bind(wx.EVT_CLOSE, self.CloseDialogStopThreads)
                     self.count = 0
@@ -545,19 +551,26 @@ class CreateZipDialog(wx.Dialog):
                     hbox1 = wx.BoxSizer(wx.HORIZONTAL)
                     hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self.dlg, strings.informations)
                     hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+                    hbox4 = wx.BoxSizer(wx.HORIZONTAL)
                     archive_creation_text = wx.StaticText(self.dlg, label=strings.please_wait + ", "
                                                           + strings.busy_info)
                     hbox1.Add(archive_creation_text, 1, wx.EXPAND | wx.TOP | wx.RIGHT, 5)
-                    vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 10)
+                    vbox.Add(hbox1, 1, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 10)
                     self.time_text = wx.StaticText(self.dlg, label=strings.elapsed_time + "\n0 min 0 s")
                     hbox2.Add(self.time_text, 1, wx.EXPAND | wx.RIGHT, 20)
                     self.file_text = wx.StaticText(self.dlg, label=strings.file + "\n", style=wx.ST_ELLIPSIZE_MIDDLE)
                     hbox2.Add(self.file_text, 2, wx.EXPAND)
+                    vbox.Add((-1, 5))
                     vbox.Add(hbox2, 2, wx.EXPAND | wx.ALL, 10)
-                    vbox.Add((-1, 15))
-                    self.progress = wx.Gauge(self.dlg, range=PROGRESS_RANGE)
-                    hbox3.Add(self.progress, 1, wx.EXPAND | wx.BOTTOM, 10)
+                    # vbox.Add((-1, 15))
+                    self.progress = wx.Gauge(self.dlg, range=progress_range)
+                    hbox3.Add(self.progress, 1, wx.EXPAND)
                     vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
+                    cancel_button = wx.Button(self.dlg, label=strings.cancel)
+                    cancel_button.Bind(wx.EVT_BUTTON, self.CloseDialogStopThreads)
+                    hbox4.AddStretchSpacer(2)
+                    hbox4.Add(cancel_button, 1, wx.EXPAND)
+                    vbox.Add(hbox4, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT | wx.RIGHT, 10)
                     self.dlg.SetSizer(vbox)
                     self.dlg.SetSize((350, 225))
                     is_creating = True
@@ -566,22 +579,10 @@ class CreateZipDialog(wx.Dialog):
                     self.time_thread = Time()
                     self.time_thread.start()
                     self.dlg.ShowModal()
-                except FileNotFoundError:
-                    # del busy_info
-                    # del busy_cursor
-                    wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
-                                  + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
-                    os.remove(self.zip_destination)
                 except:
-                    # del busy_info
-                    # del busy_cursor
                     wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
                                   + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
                     os.remove(self.zip_destination)
-                else:
-                    # del busy_info
-                    # del busy_cursor
-                    pass
             else:
                 wx.MessageBox(strings.no_destination_chosen, strings.error, wx.OK | wx.ICON_EXCLAMATION)
         else:
