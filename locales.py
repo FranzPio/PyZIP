@@ -34,6 +34,7 @@ class Locale:
             self.verify_warning_2 = "Erste fehlerhafte Datei"
             self.no_destination_chosen = "Kein Speicherort ausgewählt!"
             self.no_files_to_zip_chosen = "Keine Dateien ausgewählt!"
+            self.cancelled_by_user = "Aktion durch Benutzer abgebrochen!"
 
             # information
             self.information = "Info"
@@ -137,6 +138,7 @@ class Locale:
             self.verify_warning_2 = "First bad file"
             self.no_destination_chosen = "No destination folder specified!"
             self.no_files_to_zip_chosen = "No files selected!"
+            self.cancelled_by_user = "Action cancelled by user."
 
             # information
             self.information = "Information"
