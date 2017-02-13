@@ -141,9 +141,7 @@ class Application(wx.Frame):
             hbox3.Add(cancel_button, 1, wx.EXPAND)
             vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
             dlg.SetSizer(vbox)
-            dlg.SetMaxSize((260, 170))
-            dlg.SetMinSize((260, 170))
-            dlg.SetSize((260, 170))
+            dlg.SetSize((260, 155))
             dlg.Centre()
             dlg.ShowModal()
 
@@ -192,7 +190,8 @@ class Application(wx.Frame):
         self.archive_contents_olv = olv.FastObjectListView(self, sortable=True, style=wx.LC_REPORT)
         self.archive_contents_olv.SetColumns([
             olv.ColumnDefn(strings.filename_column, "right", valueGetter="filename", isSpaceFilling=True),
-            olv.ColumnDefn(strings.size_column, "right", 80, "size", isSpaceFilling=False),
+            olv.ColumnDefn(strings.size_column, "right", 80, "size", isSpaceFilling=False,
+                           stringConverter=self.convert_size),
             olv.ColumnDefn(strings.changed_column, "right", 140, "changed", isSpaceFilling=False,
                            stringConverter="%d.%m.%Y")])
         # self.archive_contents_olv.AutoSizeColumns()  # doesn't do anything???
@@ -207,7 +206,16 @@ class Application(wx.Frame):
         vbox.Add((-1, 5))
         self.SetSizer(vbox)
 
+    @staticmethod
+    def convert_size(size_in_bytes):
+        unit_dict = {1000000000: "GB", 1000000: "MB", 1000: "KB"}
+        for cutoff, unit in unit_dict.items():
+            if size_in_bytes >= cutoff:
+                return str(round(size_in_bytes / cutoff, 2)) + " " + unit
+        return str(size_in_bytes) + " KB"
+
     def open_archive_member(self, evt):
+        # TODO: fix! won't work with subfolders in archive (separator? = "/" instead of "\")
         try:
             with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                 filename_of_temp_extracted = self.archive_contents_olv.GetSelectedObject()["filename"]
@@ -232,7 +240,8 @@ class Application(wx.Frame):
                 for zip_member in zip_file.infolist():
                     self.archive_contents_olv.AddObjects([{
                         "filename": zip_member.filename,
-                        "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB",
+                        "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB"
+                        if zip_member.compress_size > 1000 else str(zip_member.compress_size) + " KB",
                         "changed": datetime.datetime(zip_member.date_time[0], zip_member.date_time[1],
                                                      zip_member.date_time[2])}])
                     archive_member_count += 1
@@ -253,17 +262,19 @@ class Application(wx.Frame):
         filename_of_zip = file_dialog.GetFilename()
         file_extension_of_zip = filename_of_zip.split(".")[-1].upper()
         try:
+            busy_cursor = wx.BusyCursor()
             with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
                 for zip_member in zip_file.infolist():
                     self.archive_contents_olv.AddObjects([{
                         "filename": zip_member.filename,
-                        "size": str(round(zip_member.compress_size / 1000000, 3)) + " MB"
-                        if zip_member.compress_size > 1000 else str(zip_member.compress_size) + " KB",
+                        "size": zip_member.compress_size,  # + " MB"
+                        # if zip_member.compress_size > 1000 else str(zip_member.compress_size) + " KB",
                         "changed": datetime.datetime(zip_member.date_time[0], zip_member.date_time[1],
                                                      zip_member.date_time[2])}])
                     archive_member_count += 1
             self.archive_member_count_text.SetLabel(
                 str(archive_member_count) + " " + strings.archive_member_count_files)
+            del busy_cursor
         except zipfile.BadZipFile:
             wx.MessageBox("\"" + filename_of_zip + "\" " + strings.invalid_archive_1 + " " + file_extension_of_zip
                           + strings.invalid_archive_2, strings.error, wx.OK | wx.ICON_EXCLAMATION)
