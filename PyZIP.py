@@ -208,17 +208,18 @@ class Application(wx.Frame):
 
     @staticmethod
     def convert_size(size_in_bytes):
+        # adapted from demo: http://objectlistview.sourceforge.net/python/gettingStarted.html#smarter-string-conversions
         unit_dict = {1000000000: "GB", 1000000: "MB", 1000: "KB"}
         for cutoff, unit in unit_dict.items():
             if size_in_bytes >= cutoff:
                 return str(round(size_in_bytes / cutoff, 2)) + " " + unit
-        return str(size_in_bytes) + " KB"
+        return str(size_in_bytes) + " Bytes"
 
     def open_archive_member(self, evt):
-        # TODO: fix! won't work with subfolders in archive (separator? = "/" instead of "\")
         try:
             with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
-                filename_of_temp_extracted = self.archive_contents_olv.GetSelectedObject()["filename"]
+                filename_of_temp_extracted = os.sep.join(
+                        self.archive_contents_olv.GetSelectedObject()["filename"].split("/"))
                 path_to_temp_extracted = os.path.join(tempfile.gettempdir(), filename_of_temp_extracted)
                 busy_cursor = wx.BusyCursor()
                 zip_file.extract(filename_of_temp_extracted, tempfile.gettempdir())
