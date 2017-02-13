@@ -49,7 +49,8 @@ class Locale:
             self.really_quit = "PyZIP wirklich beenden?"
             self.really_clear_list = "Liste wirklich löschen?"
             self.please_wait = "Bitte warten"
-            self.busy_info = "Archiv wird erstellt..."
+            self.archive_being_created = "Archiv wird erstellt..."
+            self.files_being_extracted = "Dateien werden extrahiert..."
             self.close = "Schließen"
             self.result = "Ergebnis"
 
@@ -153,7 +154,8 @@ class Locale:
             self.really_quit = "Really quit PyZIP?"
             self.really_clear_list = "Really clear list?"
             self.please_wait = "Please wait"
-            self.busy_info = "archive is being created..."
+            self.archive_being_created = "archive is being created..."
+            self.files_being_extracted = "files are being extracted..."
             self.close = "Cancel"
             self.result = "Result"
 
