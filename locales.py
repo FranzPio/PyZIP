@@ -51,6 +51,7 @@ class Locale:
             self.please_wait = "Bitte warten"
             self.archive_being_created = "Archiv wird erstellt..."
             self.files_being_extracted = "Dateien werden extrahiert..."
+            self.archive_being_loaded = "Archiv wird geladen..."
             self.close = "Schließen"
             self.result = "Ergebnis"
 
@@ -156,6 +157,7 @@ class Locale:
             self.please_wait = "Please wait"
             self.archive_being_created = "archive is being created..."
             self.files_being_extracted = "files are being extracted..."
+            self.archive_being_loaded = "loading archive..."
             self.close = "Cancel"
             self.result = "Result"
 
