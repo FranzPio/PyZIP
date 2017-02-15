@@ -23,7 +23,7 @@ class Locale:
             self.file_not_found_error_1 = "Das Archiv"
             self.file_not_found_error_2 = "konnte nicht gefunden werden."
             self.file_not_found_error_3 = "Es wurde während der Bearbeitung gelöscht, verschoben oder umbenannt."
-            self.file_not_found_error_1_1 = "Mindestens eine Datei wurde während des Erstellens"
+            self.file_not_found_error_1_1 = "Mindestens eine Datei wurde während der Bearbeitung"
             self.file_not_found_error_1_2 = "gelöscht, verschoben oder umbenannt."
             self.extract_error = "Extrahieren fehlgeschlagen!"
             self.verify_error = "Überprüfung fehlgeschlagen!"
@@ -52,6 +52,7 @@ class Locale:
             self.archive_being_created = "Archiv wird erstellt..."
             self.files_being_extracted = "Dateien werden extrahiert..."
             self.archive_being_loaded = "Archiv wird geladen..."
+            self.archive_being_verified = "Archiv wird auf Fehler überprüft..."
             self.close = "Schließen"
             self.result = "Ergebnis"
 
@@ -77,7 +78,7 @@ class Locale:
             self.archive_member_count_files = "Dateien"
 
             # file dialogs
-            self.wildcard_archives = "Archivdateien|*.zip;*.bz2;*.xz;*.lzma"
+            self.wildcard_archives = "Archivdateien|*.zip"
             self.wildcard_zip = "ZIP-Archiv (*.zip) |*.zip"
             self.choose_files_title = "Dateien auswählen"
             self.choose_folder_title = "Ordner auswählen"
@@ -129,7 +130,7 @@ class Locale:
             self.file_not_found_error_1 = "The archive"
             self.file_not_found_error_2 = "cannot be found."
             self.file_not_found_error_3 = "It was deleted, moved or renamed while viewing."
-            self.file_not_found_error_1_1 = "During creation at least one file"
+            self.file_not_found_error_1_1 = "During processing at least one file"
             self.file_not_found_error_1_2 = "was deleted, moved or renamed."
             self.extract_error = "Extraction failed!"
             self.verify_error = "Verification failed!"
@@ -158,6 +159,7 @@ class Locale:
             self.archive_being_created = "archive is being created..."
             self.files_being_extracted = "files are being extracted..."
             self.archive_being_loaded = "loading archive..."
+            self.archive_being_verified = "checking archive integrity..."
             self.close = "Cancel"
             self.result = "Result"
 
@@ -183,7 +185,7 @@ class Locale:
             self.archive_member_count_files = "files"
 
             # file dialogs
-            self.wildcard_archives = "Archives|*.zip;*.bz2;*.xz;*.lzma"
+            self.wildcard_archives = "Archives|*.zip"
             self.wildcard_zip = "ZIP archive (*.zip) |*.zip"
             self.choose_files_title = "Select files"
             self.choose_folder_title = "Select folders"

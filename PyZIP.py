@@ -43,9 +43,9 @@ class CreateArchive(threading.Thread):
 
     def run(self):
         global is_creating
-        with zipfile.ZipFile(self.frame.zip_destination, "w",
-                             compression=self.frame.zip_compression_method) as zip_file:
-            try:
+        try:
+            with zipfile.ZipFile(self.frame.zip_destination, "w",
+                                 compression=self.frame.zip_compression_method) as zip_file:
                 for index, (filename, filepath) in enumerate(self.frame.files_to_zip.items()):
                     if is_creating:
                         self.frame.file_text.SetLabel(strings.file + "\n" + filename)
@@ -55,20 +55,20 @@ class CreateArchive(threading.Thread):
                         wx.CallAfter(self.frame.update_progess)
                     else:
                         return
-            except FileNotFoundError:
-                is_creating = False
-                wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
-                              + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
-                # os.remove(self.frame.zip_destination)  # seems to invoke a PermissionError (?)
-                #                                        # (resource being used by another process at the time)
-            except OSError:
-                is_creating = False
-                wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
-                              + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
-                # os.remove(self.frame.zip_destination)
-            else:
-                is_creating = False
-                wx.MessageBox(strings.create_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
+        except FileNotFoundError:
+            is_creating = False
+            wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
+                          + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
+            # os.remove(self.frame.zip_destination)  # seems to invoke a PermissionError (?)
+            #                                        # (resource being used by another process at the time)
+        except OSError:
+            is_creating = False
+            wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
+                          + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
+            # os.remove(self.frame.zip_destination)
+        else:
+            is_creating = False
+            wx.MessageBox(strings.create_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
 
     @staticmethod
     def stop():
@@ -83,8 +83,8 @@ class ExtractArchive(threading.Thread):
 
     def run(self):
         global is_creating
-        with zipfile.ZipFile(self.frame.path_to_opened_zip, "r") as zip_file:
-            try:
+        try:
+            with zipfile.ZipFile(self.frame.path_to_opened_zip, "r") as zip_file:
                 if self.frame.archive_contents_olv.GetSelectedObjects():
                     for index, selection in enumerate(self.frame.archive_contents_olv.GetSelectedObjects()):
                         if is_creating:
@@ -105,17 +105,17 @@ class ExtractArchive(threading.Thread):
                             wx.CallAfter(self.frame.update_progess)
                         else:
                             return
-            except FileNotFoundError:
-                is_creating = False
-                wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
-                              + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
-            except OSError:
-                is_creating = False
-                wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
-                              + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
-            else:
-                is_creating = False
-                wx.MessageBox(strings.extract_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
+        except FileNotFoundError:
+            is_creating = False
+            wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
+                          + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
+        except OSError:
+            is_creating = False
+            wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
+                          + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
+        else:
+            is_creating = False
+            wx.MessageBox(strings.extract_success_information, strings.information, wx.OK | wx.ICON_INFORMATION)
 
     @staticmethod
     def stop():
@@ -158,6 +158,37 @@ class OpenArchive(threading.Thread):
             wx.MessageBox("\"" + self.frame.filename_of_zip + "\" " + strings.invalid_archive_1 + " "
                           + file_extension_of_zip + strings.invalid_archive_2, strings.error,
                           wx.OK | wx.ICON_EXCLAMATION)
+        except OSError:
+            is_creating = False
+            wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
+                          + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
+        else:
+            is_creating = False
+
+    @staticmethod
+    def stop():
+        global is_creating
+        is_creating = False
+
+
+class VerifyArchive(threading.Thread):
+    def __init__(self, frame):
+        super().__init__()
+        self.frame = frame
+
+    def run(self):
+        global is_creating
+        try:
+            with zipfile.ZipFile(self.frame.path_to_opened_zip, "r") as zip_file:
+                verification = zip_file.testzip()
+                if verification:
+                    wx.MessageBox(strings.verify_warning_1 + "\n" + strings.verify_warning_2 + "\n\n"
+                                  + "\"" + verification + "\"", strings.result, wx.OK | wx.ICON_EXCLAMATION)
+                else:
+                    wx.CallAfter(self.frame.update_progess)
+                    is_creating = False
+                    wx.MessageBox(strings.verify_information_1 + "\n"
+                                  + strings.verify_information_2, strings.result, wx.OK | wx.ICON_INFORMATION)
         except FileNotFoundError:
             is_creating = False
             wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
@@ -166,8 +197,6 @@ class OpenArchive(threading.Thread):
             is_creating = False
             wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
                           + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
-        else:
-            is_creating = False
 
     @staticmethod
     def stop():
@@ -457,7 +486,16 @@ class Application(wx.Frame):
                 return
             self.path_to_zip = file_dialog.GetPath()
             selection = self.archive_contents_olv.GetSelectedObjects()
-            progress_range = len(selection if selection else zipfile.ZipFile(self.path_to_opened_zip).infolist())
+            try:
+                progress_range = len(selection if selection else zipfile.ZipFile(self.path_to_opened_zip).infolist())
+            except FileNotFoundError:
+                wx.MessageBox(strings.file_not_found_error_1_1 + "\n" + strings.file_not_found_error_1_2 + "\n\n"
+                              + str(sys.exc_info()[1]), strings.error, wx.OK | wx.ICON_ERROR)
+                return
+            except OSError:
+                wx.MessageBox(strings.create_error + "\n" + strings.error_code + "\n\n"
+                              + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
+                return
             self.dlg = wx.Dialog(None, title=strings.progress)
             self.dlg.Bind(wx.EVT_CLOSE, self.CloseDialogStopThreads)
             self.count = 0
@@ -494,30 +532,47 @@ class Application(wx.Frame):
             self.dlg.ShowModal()
 
     def verify_zip(self, evt):
+        global is_creating, progress_range
         if self.archive_contents_olv.ItemCount == 0:
             pass
         else:
-            busy_cursor = wx.BusyCursor()
-            try:
-                with zipfile.ZipFile(self.path_to_opened_zip, "r") as zip_file:
-                    verification = zip_file.testzip()
-                    del busy_cursor
-                    if verification:
-                        wx.MessageBox(strings.verify_warning_1 + "\n" + strings.verify_warning_2 + "\n\n"
-                                      + "\"" + verification + "\"", strings.result, wx.OK | wx.ICON_EXCLAMATION)
-                    else:
-                        wx.MessageBox(strings.verify_information_1 + "\n"
-                                      + strings.verify_information_2, strings.result, wx.OK | wx.ICON_INFORMATION)
-            except FileNotFoundError:
-                del busy_cursor
-                wx.MessageBox(strings.file_not_found_error_1 + " \"" + self.path_to_opened_zip
-                              + "\"\n" + strings.file_not_found_error_2 + "\n"
-                              + strings.file_not_found_error_3, strings.error, wx.OK | wx.ICON_ERROR)
-
-            except OSError:
-                del busy_cursor
-                wx.MessageBox(strings.verify_error + "\n" + strings.corrupted_error + "\n\n"
-                              + str(sys.exc_info()[1]), strings.unexpected_error, wx.OK | wx.ICON_ERROR)
+            progress_range = 1
+            self.dlg = wx.Dialog(None, title=strings.progress)
+            self.dlg.Bind(wx.EVT_CLOSE, self.CloseDialogStopThreads)
+            self.count = 0
+            vbox = wx.BoxSizer(wx.VERTICAL)
+            hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+            hbox2 = wx.StaticBoxSizer(wx.HORIZONTAL, self.dlg, strings.informations)
+            hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+            hbox4 = wx.BoxSizer(wx.HORIZONTAL)
+            archive_creation_text = wx.StaticText(self.dlg,
+                                                  label=strings.please_wait + ", " + strings.archive_being_verified)
+            hbox1.Add(archive_creation_text, 1, wx.EXPAND | wx.TOP | wx.RIGHT, 5)
+            vbox.Add(hbox1, 1, wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, 10)
+            self.time_text = wx.StaticText(self.dlg, label=strings.elapsed_time + "\n0 min 0 s")
+            hbox2.Add(self.time_text, 1, wx.EXPAND | wx.RIGHT, 20)
+            # self.file_text = wx.StaticText(self.dlg, label=strings.file + "\n", style=wx.ST_ELLIPSIZE_MIDDLE)
+            # hbox2.Add(self.file_text, 2, wx.EXPAND)
+            vbox.Add((-1, 5))
+            vbox.Add(hbox2, 2, wx.EXPAND | wx.ALL, 10)
+            self.progress = wx.Gauge(self.dlg, range=progress_range)
+            self.progress.Pulse()
+            hbox3.Add(self.progress, 1, wx.EXPAND)
+            vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
+            cancel_button = wx.Button(self.dlg, label=strings.cancel)
+            cancel_button.Bind(wx.EVT_BUTTON, self.CloseDialogStopThreads)
+            cancel_button.Disable()
+            hbox4.AddStretchSpacer(2)
+            hbox4.Add(cancel_button, 1, wx.EXPAND)
+            vbox.Add(hbox4, 1, wx.EXPAND | wx.BOTTOM | wx.LEFT | wx.RIGHT, 10)
+            self.dlg.SetSizer(vbox)
+            self.dlg.SetSize((350, 212))
+            is_creating = True
+            self.progress_bar_thread = VerifyArchive(self)
+            self.progress_bar_thread.start()
+            self.time_thread = Time(self)
+            self.time_thread.start()
+            self.dlg.ShowModal()
 
     @staticmethod
     def create_zip(evt):
