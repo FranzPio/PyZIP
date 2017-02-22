@@ -61,11 +61,6 @@ pip install ObjectListView
 ```
 evtl. ``pip`` durch ``pip3`` ersetzen
 
-2.
-
-Ordner ``PyZIP`` in Homeverzeichnis kopieren (/home/NAME oder C:\Users\NAME)
-
-3.
 
 ``PyZIP.py`` ausführen
 
