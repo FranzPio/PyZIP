@@ -265,10 +265,10 @@ class Application(wx.Frame):
                 if language in ("de", "en"):
                     strings = locales.Locale(language)
                 else:
-                    strings = locales.Locale("de")
+                    strings = locales.Locale("en")
                     os.remove(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"))
                     with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "w") as settings_file:
-                        settings_file.write("language=de")
+                        settings_file.write("language=en")
         except FileNotFoundError:
             dlg = wx.Dialog(None, title=locales.Locale.choose_language)
             dlg.SetIcon(images.PyZIP.GetIcon())
