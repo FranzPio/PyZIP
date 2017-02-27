@@ -42,9 +42,7 @@ Minimalistischer Archivmanager in Python mit wxPython
 
 ##### OS-spezifische Abhängigkeiten:
 
-- (nur Windows!)
-
-Python 3.x installieren (https://www.python.org/downloads/)
+- (nur Windows!) Python 3.x installieren (https://www.python.org/downloads/)
 
 - (nur Linux!, hier Debian/Ubuntu)
 
