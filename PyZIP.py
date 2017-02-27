@@ -262,39 +262,39 @@ class Application(wx.Frame):
         try:
             with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "r") as settings_file:
                 language = settings_file.read().split("=")[-1]
-                if language in ("de", "en"):
+                if language in locales.Locale.LANGUAGES.values():
                     strings = locales.Locale(language)
                 else:
-                    strings = locales.Locale("en")
-                    os.remove(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"))
-                    with open(os.path.join(os.path.expanduser("~"), ".pyzip_settings.ini"), "w") as settings_file:
-                        settings_file.write("language=en")
+                    self.language_dialog()
         except FileNotFoundError:
-            dlg = wx.Dialog(None, title=locales.Locale.choose_language)
-            dlg.SetIcon(images.PyZIP.GetIcon())
-            dlg.Bind(wx.EVT_CLOSE, self.CloseDialogAndExit)
-            vbox = wx.BoxSizer(wx.VERTICAL)
-            hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-            hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-            hbox3 = wx.BoxSizer(wx.HORIZONTAL)
-            choose_language_text = wx.StaticText(dlg, label=locales.Locale.choose_language_for_PyZIP)
-            hbox1.Add(choose_language_text, 1, wx.EXPAND)
-            vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 10)
-            self.languages_drop_down = wx.Choice(dlg, choices=list(locales.Locale.LANGUAGES.keys()), style=wx.CB_SORT)
-            hbox2.Add(self.languages_drop_down, 1, wx.EXPAND)
-            vbox.Add(hbox2, 2, wx.EXPAND | wx.ALL, 10)
-            ok_button = wx.Button(dlg, label=locales.Locale.okay)
-            ok_button.Bind(wx.EVT_BUTTON, self.SetLocale)
-            ok_button.SetDefault()
-            hbox3.Add(ok_button, 1, wx.EXPAND | wx.RIGHT, 5)
-            cancel_button = wx.Button(dlg, label=locales.Locale.cancel)
-            cancel_button.Bind(wx.EVT_BUTTON, self.CloseDialogAndExit)
-            hbox3.Add(cancel_button, 1, wx.EXPAND)
-            vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
-            dlg.SetSizer(vbox)
-            dlg.SetSize((260, 155))
-            dlg.Centre()
-            dlg.ShowModal()
+            self.language_dialog()
+            
+    def language_dialog(self):
+        dlg = wx.Dialog(None, title=locales.Locale.choose_language)
+        dlg.SetIcon(images.PyZIP.GetIcon())
+        dlg.Bind(wx.EVT_CLOSE, self.CloseDialogAndExit)
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+        hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+        choose_language_text = wx.StaticText(dlg, label=locales.Locale.choose_language_for_PyZIP)
+        hbox1.Add(choose_language_text, 1, wx.EXPAND)
+        vbox.Add(hbox1, 1, wx.EXPAND | wx.ALL, 10)
+        self.languages_drop_down = wx.Choice(dlg, choices=list(locales.Locale.LANGUAGES.keys()), style=wx.CB_SORT)
+        hbox2.Add(self.languages_drop_down, 1, wx.EXPAND)
+        vbox.Add(hbox2, 2, wx.EXPAND | wx.ALL, 10)
+        ok_button = wx.Button(dlg, label=locales.Locale.okay)
+        ok_button.Bind(wx.EVT_BUTTON, self.SetLocale)
+        ok_button.SetDefault()
+        hbox3.Add(ok_button, 1, wx.EXPAND | wx.RIGHT, 5)
+        cancel_button = wx.Button(dlg, label=locales.Locale.cancel)
+        cancel_button.Bind(wx.EVT_BUTTON, self.CloseDialogAndExit)
+        hbox3.Add(cancel_button, 1, wx.EXPAND)
+        vbox.Add(hbox3, 2, wx.EXPAND | wx.ALL, 10)
+        dlg.SetSizer(vbox)
+        dlg.SetSize((260, 155))
+        dlg.Centre()
+        dlg.ShowModal()
 
     def SetLocale(self, evt):
         global strings
