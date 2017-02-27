@@ -1,5 +1,5 @@
 # PyZIP
-Minimalistischer Archivmanager in Python mit wxPython
+Archivmanager in Python mit wxPython [[Englische Version](README.md)]
 ***
 ### Features
 
