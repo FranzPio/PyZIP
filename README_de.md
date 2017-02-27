@@ -61,7 +61,6 @@ pip install ObjectListView
 ```
 evtl. ``pip`` durch ``pip3`` ersetzen
 
+PyZIP starten:
 
-``PyZIP.py`` ausführen
-
-(z.B. ``python PyZIP.py`` bzw. ``python3 PyZIP.py``)
+``python PyZIP.py`` bzw. ``python3 PyZIP.py``
