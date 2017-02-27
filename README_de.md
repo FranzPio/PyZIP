@@ -31,9 +31,9 @@ Minimalistischer Archivmanager in Python mit wxPython
 
 #### Windows
 
-- ``install.exe`` ausführen (SmartScreen-Warnung ignorieren)
+- Doppelklick auf ``install.exe`` (SmartScreen-Warnung ignorieren)
 
-- bei Problemen mit Zertifikat, SmartScreen-Filter etc.
+- bei Problemen mit Zertifikat, SmartScreen-Filter etc., cmd öffnen und eingeben
 
   ``certutil -user -addstore Root "<SPEICHERORT>/CA.cer"``
 
