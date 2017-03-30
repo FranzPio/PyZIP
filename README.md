@@ -1,5 +1,6 @@
 # PyZIP
-Archive manager using Python and wxPython [[German version](README_de.md)]
+(DEVELOPMENT PAUSED.)
+Archive manager using Python3 and wxPython-Phoenix [[German version](README_de.md)]
 ***
 ### Features
 
