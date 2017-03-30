@@ -29,7 +29,7 @@ class Time(threading.Thread):
                                           + str(int(mins)) + " min "
                                           + str(int(secs)) + " s")
             time.sleep(0.1)
-            # works now under Windows!?
+            # works now under Windows
 
     @staticmethod
     def stop():
