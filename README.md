@@ -55,7 +55,7 @@ Adjust Python version in "python3.5-dev" accordingly!
 
 ##### All OSs:
 ```
-pip install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython
+pip install wxPython
 pip install ObjectListView
 ```
 maybe replace ``pip`` with ``pip3``
