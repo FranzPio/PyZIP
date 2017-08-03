@@ -1,5 +1,5 @@
 # PyZIP
-(DEVELOPMENT PAUSED.)
+(development stopped)
 Archive manager using Python3 and wxPython-Phoenix [[German version](README_de.md)]
 ***
 ### Features
