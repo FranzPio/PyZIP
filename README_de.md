@@ -1,5 +1,5 @@
 # PyZIP
-(ENTWICKLUNG PAUSIERT.)
+(Entwicklung abgebrochen)
 Archivmanager in Python mit wxPython [[Englische Version](README.md)]
 ***
 ### Features
